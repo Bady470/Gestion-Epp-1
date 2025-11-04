@@ -1,6 +1,3 @@
-@e
-
-
 @extends('layouts.app')
 @section('title', 'Gestión de Programas - SENA')
 

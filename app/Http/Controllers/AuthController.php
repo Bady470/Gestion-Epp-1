@@ -35,9 +35,9 @@ class AuthController extends Controller
         switch ($user->roles_id) {
             case '1':
                 return redirect()->route('dashboard.admin');
-            case '3':
-                return redirect()->route('dashboard.instructor');
             case '2':
+                return redirect()->route('dashboard.instructor');
+            case '3':
                 return redirect()->route('dashboard.lider');
             default:
                 Auth::logout();

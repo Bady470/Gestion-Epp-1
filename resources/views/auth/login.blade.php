@@ -311,6 +311,15 @@
                 <nav class="tabs" aria-label="Navegación de acceso">
                     <a class="tab active" href="#" aria-current="page">Iniciar Sesión</a>
                 </nav>
+         @if ($errors->any())
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 
                 <form class="form" id="loginForm" action="{{ route('login.post') }}" method="POST">
                     @csrf

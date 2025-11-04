@@ -1,23 +1,79 @@
-<!DOCTYPE html>
-<html lang="es">
+@extends('layouts.dashboard')
 
-<head>
-    <meta charset="UTF-8">
-    <title>Panel - SENA EPP</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-
-<body class="bg-light">
-    <div class="container py-5 text-center">
-        <h1>Bienvenido al sistema de gestión de EPP</h1>
-        <p class="mt-3">Has iniciado sesión correctamente como <strong>{{ auth()->user()->nombre_completo }}</strong>
+@section('content')
+    <div class="container py-4">
+        <h2 class="mb-3 text-center">👋 Bienvenido, {{ $user->nombre_completo }}</h2>
+        <p class="text-center text-muted">Área asignada:
+            <strong>{{ $user->area->nombre ?? 'Sin área' }}</strong>
         </p>
 
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button class="btn btn-danger mt-3">Cerrar sesión</button>
-        </form>
-    </div>
-</body>
+        @if ($elementos->count() > 0)
+            <div class="row mt-4">
+                @foreach ($elementos as $epp)
+                    <div class="col-md-4 col-sm-6 mb-4">
+                        <div class="card shadow-sm h-100 border-0">
 
-</html>
+                            <img src="{{ asset($epp->img_url) }}" class="card-img-top" alt="{{ $epp->nombre }}"
+                                style="height: 200px; object-fit: cover;">
+
+                            <div class="card-body d-flex flex-column justify-content-between">
+                                <div>
+                                    <h5 class="card-title">{{ $epp->nombre }}</h5>
+                                    <p class="text-muted small mb-1">
+                                        Área: <strong>{{ $epp->area->nombre ?? '-' }}</strong>
+                                    </p>
+                                    <p class="text-muted small mb-1">
+                                        Filtro: <strong>{{ $epp->filtro->parte_del_cuerpo ?? '-' }}</strong>
+                                    </p>
+                                    <p class="text-muted small mb-2">
+                                        Cantidad disponible: <strong>{{ $epp->cantidad }}</strong>
+                                    </p>
+                                </div>
+
+                                <div class="mt-auto">
+                                    <div class="input-group mb-3">
+                                        <button class="btn btn-outline-secondary btn-sm" type="button"
+                                            onclick="changeQuantity('{{ $epp->id }}', -1)">−</button>
+                                        <input type="number" id="qty-{{ $epp->id }}" class="form-control text-center"
+                                            value="0" min="0" max="{{ $epp->cantidad }}">
+                                        <button class="btn btn-outline-secondary btn-sm" type="button"
+                                            onclick="changeQuantity('{{ $epp->id }}',1)">+</button>
+                                    </div>
+
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-warning btn-sm text-dark fw-bold">
+                                            🛒 Agregar al carrito
+                                        </button>
+                                        <button class="btn btn-primary btn-sm fw-bold">
+                                            📦 Hacer pedido
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            <div class="d-flex justify-content-center mt-4">
+                {{ $elementos->links() }}
+            </div>
+        @else
+            <div class="alert alert-info text-center mt-4">
+                No hay elementos disponibles para tu área.
+            </div>
+        @endif
+    </div>
+
+    <script>
+        function changeQuantity(id, delta) {
+            const input = document.getElementById(`qty-${id}`);
+            let value = parseInt(input.value) || 0;
+            const max = parseInt(input.max);
+            value += delta;
+            if (value < 1) value = 0;
+            if (value > max) value = max;
+            input.value = value;
+        }
+    </script>
+@endsection

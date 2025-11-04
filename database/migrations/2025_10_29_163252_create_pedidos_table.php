@@ -17,6 +17,8 @@ return new class extends Migration
 
         $table->unsignedBigInteger('users_id')->nullable();
         $table->unsignedBigInteger('fichas_id')->nullable();
+        $table->string('estado')->nullable();
+        
 
         $table->timestamps();
 
