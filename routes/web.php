@@ -40,7 +40,8 @@ Route::middleware('auth')->group(function () {
 
     // Route::get('/dashboard/lider', [LiderController::class, 'index'])->name('lider.index');
     Route::post('/lider/enviar/{id}', [LiderController::class, 'enviarPedido'])->name('lider.enviar');
-
+Route::post('/lider/enviar-todos', [LiderController::class, 'enviarTodos'])
+    ->name('lider.enviar.todos');
 
 
     // crud de usuarios que lo maneja el admin
