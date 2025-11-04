@@ -2,64 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Solicitud;
+use App\Models\Pedido;
+use App\Mail\PedidoEnviadoAdmin;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class SolicitudController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // 🔹 Listar las solicitudes pendientes
     public function index()
     {
-        //
+        $solicitudes = Pedido::with('usuario')->where('estado', 'pendiente')->get();
+        return view('solicitudes.index', compact('solicitudes'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    // 🔹 Ver una solicitud específica
+    public function show($id)
     {
-        //
+        $pedido = Pedido::with(['usuario', 'items.elemento'])->findOrFail($id);
+        return view('solicitudes.show', compact('pedido'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    // 🔹 Enviar correo al administrador
+    public function enviar($id)
     {
-        //
-    }
+        $pedido = Pedido::with(['usuario', 'items.elemento'])->findOrFail($id);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Solicitud $solicitud)
-    {
-        //
-    }
+        // Cambiar estado
+        $pedido->update(['estado' => 'enviado']);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Solicitud $solicitud)
-    {
-        //
-    }
+        // Enviar correo al administrador
+        Mail::to('juancabreras529@gmail.com')->send(new PedidoEnviadoAdmin($pedido));
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Solicitud $solicitud)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Solicitud $solicitud)
-    {
-        //
+        return redirect()->route('solicitudes.index')->with('success', 'Pedido enviado al administrador.');
     }
 }

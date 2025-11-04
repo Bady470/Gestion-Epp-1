@@ -1,10 +1,13 @@
 <?php
 
+use App\Http\Controllers\LiderController;
+use App\Http\Controllers\SolicitudController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\ElementoPPController;
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\FichaController;
 use App\Http\Controllers\InstructoresController;
 use App\Http\Controllers\PedidoController;
@@ -30,9 +33,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/instructor/dashboard', [InstructoresController::class, 'index'])
         ->name('dashboard.instructor');
 
-    Route::get('/dashboard/lider', function () {
-        return view('dashboard.lider');
-    })->name('dashboard.lider');
+// Líder
+    Route::get('/dashboard/lider', [LiderController::class, 'index'])
+         ->name('dashboard.lider');
+
+
+    // Route::get('/dashboard/lider', [LiderController::class, 'index'])->name('lider.index');
+    Route::post('/lider/enviar/{id}', [LiderController::class, 'enviarPedido'])->name('lider.enviar');
+
 
 
     // crud de usuarios que lo maneja el admin
@@ -44,6 +52,22 @@ Route::middleware('auth')->group(function () {
     Route::resource('programas', ProgramaController::class);
 
     // logica del instructor
+    // rutas de pedidos
+    Route::get('/pedidos', [PedidoController::class, 'index'])->name('pedidos.index');
+    Route::get('/pedidos/{id}', [PedidoController::class, 'show'])->name('pedidos.show');
 
 
+    // rutas del carrito de compras
+    Route::post('/carrito/agregar', [CarritoController::class, 'agregar'])->name('carrito.agregar');
+    Route::get('/carrito', [CarritoController::class, 'index'])->name('carrito.index');
+    Route::delete('/carrito/eliminar/{id}', [CarritoController::class, 'eliminar'])->name('carrito.eliminar');
+    Route::post('/carrito/confirmar', [CarritoController::class, 'confirmar'])->name('carrito.confirmar');
+    // 🔹 Pedidos del líder
+    Route::get('/lider/pedidos', [LiderController::class, 'index'])->name('lider.pedidos');
+    Route::post('/lider/pedidos/{id}/aprobar', [LiderController::class, 'aprobar'])->name('lider.aprobar');
+    Route::post('/lider/pedidos/{id}/rechazar', [LiderController::class, 'rechazar'])->name('lider.rechazar');
+    // rutas de solicitudes
+    Route::get('/solicitudes', [SolicitudController::class, 'index'])->name('solicitudes.index');
+    Route::get('/solicitudes/{id}', [SolicitudController::class, 'show'])->name('solicitudes.show');
+    Route::post('/solicitudes/{id}/enviar', [SolicitudController::class, 'enviar'])->name('solicitudes.enviar');
 });

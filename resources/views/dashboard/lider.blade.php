@@ -1,23 +1,50 @@
-<!DOCTYPE html>
-<html lang="es">
+@extends('layouts.dashboard')
 
-<head>
-    <meta charset="UTF-8">
-    <title>Panel - SENA EPP</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
+@section('content')
+<div class="container py-4">
+    <h2 class="mb-3 text-center">📋 Pedidos Recibidos</h2>
 
-<body class="bg-light">
-    <div class="container py-5 text-center">
-        <h1>Bienvenido al sistema de gestión de EPP</h1>
-        <p class="mt-3">Has iniciado sesión correctamente como <strong>{{ auth()->user()->nombre_completo }}</strong>
-        </p>
+    @if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+    @if(session('error'))
+    <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
 
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button class="btn btn-danger mt-3">Cerrar sesión</button>
-        </form>
+    @if($pedidos->count() > 0)
+    @foreach($pedidos as $pedido)
+    <div class="card mb-3 shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <strong>Instructor:</strong> {{ $pedido->usuario->nombre_completo ?? 'Desconocido' }}<br>
+                <small class="text-muted">Fecha: {{ $pedido->created_at->format('d/m/Y H:i') }}</small>
+            </div>
+            <span class="badge 
+                        @if($pedido->estado == 'pendiente') bg-warning text-dark
+                        @elseif($pedido->estado == 'enviado') bg-info text-dark
+                        @elseif($pedido->estado == 'aprobado') bg-success
+                        @else bg-secondary @endif">
+                {{ ucfirst($pedido->estado) }}
+            </span>
+        </div>
+
+        <div class="card-body">
+            <h6>🧰 Elementos solicitados:</h6>
+            <ul>
+                @foreach($pedido->elementos as $item)
+                <li>{{ $item->nombre }} ({{ $item->pivot->cantidad ?? 1 }})</li>
+                @endforeach
+            </ul>
+
+            <form action="{{ route('lider.enviar', $pedido->id) }}" method="POST">
+                @csrf
+                <button type="submit" class="btn btn-primary btn-sm">📤 Enviar al administrador</button>
+            </form>
+        </div>
     </div>
-</body>
-
-</html>
+    @endforeach
+    @else
+    <div class="alert alert-info text-center">No hay pedidos pendientes.</div>
+    @endif
+</div>
+@endsection

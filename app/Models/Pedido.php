@@ -15,6 +15,8 @@ class Pedido extends Model
         'fecha',
         'users_id',
         'fichas_id',
+        'estado', 
+
     ];
 
     public function usuario()
