@@ -2,7 +2,6 @@
 
 namespace App\Mail;
 
-use App\Models\Pedido;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -11,16 +10,18 @@ class PedidoEnviadoAdmin extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $pedido;
+    public $pedidos;
+    public $area;
 
-    public function __construct(Pedido $pedido)
+    public function __construct($pedidos, $area)
     {
-        $this->pedido = $pedido;
+        $this->pedidos = $pedidos;
+        $this->area = $area;
     }
 
     public function build()
     {
-        return $this->subject('Nueva solicitud enviada por un líder')
-                    ->markdown('emails.pedido_admin');
+        return $this->subject('Solicitudes de EPP - ' . $this->area)
+                    ->view('emails.pedido_admin');
     }
 }

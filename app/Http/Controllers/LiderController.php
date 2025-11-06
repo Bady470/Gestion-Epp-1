@@ -6,6 +6,7 @@ use App\Mail\PedidoEnviadoAdmin;
 use App\Models\Pedido;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+
 class LiderController extends Controller
 {
     // 🔹 Mostrar todos los pedidos pendientes
@@ -21,18 +22,29 @@ class LiderController extends Controller
 
 
 
-public function enviarPedido($id)
-{
-    $pedido = Pedido::with(['usuario', 'elementos.area'])->findOrFail($id);
+    public function enviarPedido($id)
+    {
+        $pedido = Pedido::with(['usuario', 'elementos.area'])->findOrFail($id);
 
-    $correoAdmin = 'juancabreras529@gmail.com';
-    Mail::to($correoAdmin)->send(new PedidoEnviadoAdmin($pedido)); // ← Tu mailable
+        // Enviar correo al admin
+        $correoAdmin = 'juancabreras529@gmail.com';
+        Mail::to($correoAdmin)->send(new PedidoEnviadoAdmin($pedido, $pedido->elementos->first()->area->nombre ?? 'Sin área'));
 
-    $pedido->estado = 'enviado';
-    $pedido->save();
+        // 🔹 Descontar inventario
+        foreach ($pedido->elementos as $elemento) {
+            $cantidadSolicitada = $elemento->cantidad;
+            $elemento->cantidad -= $cantidadSolicitada;
+            if ($elemento->cantidad < 0) {
+                $elemento->cantidad = 0;
+            }
+            $elemento->save();
+        }
 
-    // No redirige aquí (lo hace el llamador)
-}
+        // 🔹 Cambiar estado del pedido
+        $pedido->estado = 'enviado';
+        $pedido->save();
+    }
+
 
 
     // 🔹 Aprobar un pedido
@@ -58,32 +70,38 @@ public function enviarPedido($id)
     // LiderController.php
 
 
-public function enviarTodos()
-{
-    // Obtener solo pendientes
-    $pedidos = Pedido::with(['usuario', 'elementos.area'])
-                     ->where('estado', 'pendiente')
-                     ->get();
+    public function enviarTodos()
+    {
+        // Obtener todos los pedidos pendientes agrupados por área
+        $pedidosPorArea = Pedido::with(['usuario', 'elementos.area'])
+            ->where('estado', 'pendiente')
+            ->get()
+            ->groupBy(fn($pedido) => optional($pedido->elementos->first()->area)->nombre);
 
-    if ($pedidos->isEmpty()) {
-        return redirect()->back()->with('error', 'No hay pedidos pendientes para enviar.');
+        if ($pedidosPorArea->isEmpty()) {
+            return redirect()->back()->with('error', 'No hay pedidos pendientes para enviar.');
+        }
+
+        foreach ($pedidosPorArea as $area => $pedidos) {
+            // 🔹 Enviar correo por área
+            Mail::to('juancabreras529@gmail.com')->send(new PedidoEnviadoAdmin($pedidos, $area));
+
+            // 🔹 Cambiar estado de pedidos y descontar stock
+            foreach ($pedidos as $pedido) {
+                foreach ($pedido->elementos as $elemento) {
+                    if ($elemento->cantidad > 0) {
+                        // Restar el número solicitado del inventario
+                        $cantidadSolicitada = $elemento->cantidad;
+                        $nuevoStock = max(0, $elemento->cantidad - $cantidadSolicitada);
+                        $elemento->update(['cantidad' => $nuevoStock]);
+                    }
+                }
+
+                $pedido->estado = 'enviado';
+                $pedido->save();
+            }
+        }
+
+        return redirect()->back()->with('success', 'Pedidos agrupados por área y enviados al administrador.');
     }
-
-    // Recolectar todos los pedidos en una colección
-    $todosLosPedidos = collect();
-
-    foreach ($pedidos as $pedido) {
-        // Reutilizamos tu lógica existente
-        $this->enviarPedido($pedido->id); // ← ¡Reutiliza tu método!
-
-        // Agregamos al correo grupal
-        $todosLosPedidos->push($pedido);
-    }
-
-    // Opcional: Enviar un correo resumen
-    // Mail::to('juancabreras529@gmail.com')->send(new PedidoEnviadoAdmin($todosLosPedidos));
-
-    return redirect()->back()->with('success', "¡{$todosLosPedidos->count()} pedidos enviados al administrador!");
-}
-    
 }

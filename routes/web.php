@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminPedidoController;
 use App\Http\Controllers\LiderController;
 use App\Http\Controllers\SolicitudController;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +30,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard/admin', function () {
         return view('dashboard.admin');
     })->name('dashboard.admin');
+
+Route::prefix('admin')->group(function () {
+    Route::get('/pedidos', [AdminPedidoController::class, 'index'])->name('admin.pedidos.index');
+  Route::get('/pedidos/{id}', [AdminPedidoController::class, 'show'])->name('admin.pedidos.show');
+});
+
+
+    
+
+    // Instructor
 
     Route::get('/instructor/dashboard', [InstructoresController::class, 'index'])
         ->name('dashboard.instructor');

@@ -33,6 +33,12 @@
         <!-- SIN botón individual -->
     </div>
     @endforeach
+    <form action="{{ route('lider.enviar.todos') }}" method="POST" class="mb-3 text-end">
+        @csrf
+        <button type="submit" class="btn btn-primary">
+            📤 Enviar todos los pedidos al administrador
+        </button>
+    </form>
 
     <!-- LISTA DE PEDIDOS (solo vista) -->
     @foreach($pedidos as $pedido)
