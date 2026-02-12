@@ -128,7 +128,7 @@
         <nav class="navbar navbar-expand">
             <div class="container">
                 <!-- Logo + Título -->
-                <a class="navbar-brand" href="{{ route('dashboard.admin') }}">
+                <a class="navbar-brand" href="{{ route('dashboard.instructor') }}">
                     <img src="{{ asset('img/logoblanco.png') }}" alt="SENA">
                     SENA EPP
                 </a>

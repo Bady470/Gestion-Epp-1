@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\AdminPedidoController;
+use App\Http\Controllers\Api\EppImportController;
+use App\Http\Controllers\Api\FichaImportController;
+use App\Http\Controllers\Api\ProgramaImportController;
+use App\Http\Controllers\Api\UserImportController;
 use App\Http\Controllers\LiderController;
 use App\Http\Controllers\SolicitudController;
 use Illuminate\Support\Facades\Route;
@@ -82,4 +86,15 @@ Route::post('/lider/enviar-todos', [LiderController::class, 'enviarTodos'])
     Route::get('/solicitudes', [SolicitudController::class, 'index'])->name('solicitudes.index');
     Route::get('/solicitudes/{id}', [SolicitudController::class, 'show'])->name('solicitudes.show');
     Route::post('/solicitudes/{id}/enviar', [SolicitudController::class, 'enviar'])->name('solicitudes.enviar');
+
+
+    // rutas de importacion de archivos excel
+     Route::post('/users/import', [UserImportController::class, 'import']);
+    Route::post('/programas/import', [ProgramaImportController::class, 'import']);
+    Route::post('/fichas/import', [FichaImportController::class, 'import']);
+    
+    Route::post('/epp/import', [EppImportController::class, 'import']);
+    Route::post('/elementos_pp/import', [ElementoPPController::class, 'import'])
+    ->name('elementos_pp.import');
+
 });

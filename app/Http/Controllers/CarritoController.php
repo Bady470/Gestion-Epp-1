@@ -46,7 +46,7 @@ class CarritoController extends Controller
         return back()->with('success', 'Elemento eliminado del carrito');
     }
 
-    // Confirmar pedido
+    // Confirmar pedido (CORREGIDO)
     public function confirmar()
     {
         $carrito = session()->get('carrito', []);
@@ -62,31 +62,28 @@ class CarritoController extends Controller
             'estado' => 'pendiente',
         ]);
 
-        // Asociar los elementos al pedido con la cantidad
+        // Asociar los elementos al pedido SIN descontar inventario
         foreach ($carrito as $item) {
             $producto = ElementoPP::find($item['id']);
 
             if ($producto) {
-                // Verificar si hay stock suficiente
-                if ($producto->cantidad >= $item['cantidad']) {
-                    // Descontar solo la cantidad pedida
-                    $producto->cantidad -= $item['cantidad'];
-                    $producto->save();
 
-                    // Guardar relación en la tabla pivote con la cantidad
-                    $pedido->elementos()->attach($producto->id, [
-                        'cantidad' => $item['cantidad'],
-                    ]);
-                } else {
-                    // Si no hay suficiente stock, se omite y muestra error
+                // Validar que no pidan más de lo disponible
+                if ($producto->cantidad < $item['cantidad']) {
                     return back()->with('error', "No hay suficiente stock para {$producto->nombre}.");
                 }
+
+                // Guardar solo cantidad pedida
+                $pedido->elementos()->attach($producto->id, [
+                    'cantidad' => $item['cantidad'],
+                ]);
             }
         }
 
         // Vaciar carrito
         session()->forget('carrito');
 
-        return redirect()->route('dashboard.instructor')->with('success', 'Pedido enviado al líder 📦');
+        return redirect()->route('dashboard.instructor')
+                         ->with('success', 'Pedido enviado al líder 📦');
     }
 }

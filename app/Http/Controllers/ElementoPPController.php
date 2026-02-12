@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\EppImport;
 use App\Models\ElementoPP;
 use App\Models\Area;
 use App\Models\Filtro;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;  // ✔️ ESTE ES EL CORRECTO
+
 
 class ElementoPPController extends Controller
 {
@@ -27,11 +30,12 @@ class ElementoPPController extends Controller
     $request->validate([
         'nombre' => 'required|string|max:45',
         'descripcion' => 'nullable|string',
+            'img_url' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         'cantidad' => 'required|integer|min:0',
         'talla' => 'nullable|string',
         'areas_id' => 'nullable|exists:areas,id',
         'filtros_id' => 'nullable|exists:filtros,id',
-        'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    
     ]);
 
     $data = $request->only([
@@ -92,4 +96,17 @@ class ElementoPPController extends Controller
         $elementos_pp->delete();
         return redirect()->route('elementos_pp.index')->with('success', 'Elemento eliminado correctamente');
     }
+
+
+    public function import(Request $request)
+{
+    $request->validate([
+        'excel' => 'required|mimes:xlsx'
+    ]);
+
+    Excel::import(new EppImport, $request->file('excel'));
+
+    return redirect()->back()->with('success', 'Archivo importado correctamente.');
+}
+
 }

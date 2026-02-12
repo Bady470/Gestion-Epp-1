@@ -5,7 +5,8 @@
 <div class="container mt-4">
     <h2>Crear Elemento PP</h2>
 
-    <form action="{{ route('elementos_pp.store') }}" method="POST" enctype="multipart/form-data">
+    {{-- FORMULARIO 1: CREAR ELEMENTO INDIVIDUAL --}}
+    <form action="{{ route('elementos_pp.store') }}" method="POST" enctype="multipart/form-data" class="mb-5">
         @csrf
 
         <div class="row">
@@ -45,7 +46,7 @@
                     <input type="text" name="talla" class="form-control" placeholder="M, 42, Única...">
                 </div>
 
-                <!-- ÁREA: USAR areas_id -->
+                <!-- ÁREA -->
                 <div class="mb-3">
                     <label class="form-label">Área</label>
                     <select name="areas_id" class="form-select">
@@ -54,10 +55,9 @@
                         <option value="{{ $area->id }}">{{ $area->nombre }}</option>
                         @endforeach
                     </select>
-                    @error('areas_id') <small class="text-danger">{{ $message }}</small> @enderror
                 </div>
 
-                <!-- FILTRO: USAR filtros_id -->
+                <!-- FILTRO -->
                 <div class="mb-3">
                     <label class="form-label">Filtro</label>
                     <select name="filtros_id" class="form-select">
@@ -66,14 +66,36 @@
                         <option value="{{ $filtro->id }}">{{ $filtro->parte_del_cuerpo }}</option>
                         @endforeach
                     </select>
-                    @error('filtros_id') <small class="text-danger">{{ $message }}</small> @enderror
                 </div>
+
             </div>
         </div>
 
         <button type="submit" class="btn btn-success">Guardar</button>
         <a href="{{ route('elementos_pp.index') }}" class="btn btn-secondary">Cancelar</a>
     </form>
+
+
+
+    {{-- FORMULARIO 2: SUBIR ARCHIVO EXCEL --}}
+    <div class="card">
+        <div class="card-body">
+            <h4>Cargar Elementos PP desde Excel</h4>
+            <p class="text-muted">Sube un archivo .xlsx con todos los elementos que deseas cargar.</p>
+
+            <form action="{{ route('elementos_pp.import') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+
+                <div class="mb-3">
+                    <label class="form-label">Archivo Excel</label>
+                    <input type="file" name="excel" class="form-control" accept=".xlsx" required>
+                    @error('excel') <small class="text-danger">{{ $message }}</small> @enderror
+                </div>
+
+                <button type="submit" class="btn btn-primary">Importar Excel</button>
+            </form>
+        </div>
+    </div>
 </div>
 
 <script>

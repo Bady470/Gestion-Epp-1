@@ -12,22 +12,25 @@ class PedidosAgrupadosAdmin extends Mailable
     use Queueable, SerializesModels;
 
     public $pedidos;
+    public $area;
+    public $instructores;
 
-    /**
-     * Crear una nueva instancia del mensaje.
-     */
-    public function __construct(Collection $pedidos)
+    public function __construct(Collection $pedidos, $area, $instructores)
     {
         $this->pedidos = $pedidos;
+        $this->area = $area;
+        $this->instructores = $instructores;
     }
 
-    /**
-     * Construir el mensaje.
-     */
     public function build()
     {
-        return $this->subject('📦 Pedidos agrupados de EPP enviados por el Líder')
-                    ->markdown('emails.pedidos.agrupados')
-                    ->with(['pedidos' => $this->pedidos]);
+        return $this->subject('📦 Pedidos agrupados de la Área: ' . $this->area)
+            ->markdown('emails.pedidos.agrupados')
+            ->with([
+                'pedidos' => $this->pedidos,
+                'area' => $this->area,
+                'instructores' => $this->instructores,
+            ]);
     }
 }
+    

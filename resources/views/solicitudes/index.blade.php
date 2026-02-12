@@ -1,6 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
+
+<div class="flex justify-end mb-4">
+    <form action="{{ route('solicitudes.enviarTodos') }}" method="POST">
+        @csrf
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">
+            📤 Enviar todos los pedidos
+        </button>
+    </form>
+</div>
+
 <div class="container">
     <h2>Solicitudes Pendientes</h2>
 
