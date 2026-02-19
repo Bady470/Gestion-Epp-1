@@ -10,9 +10,17 @@ class AreaSeeder extends Seeder
     public function run(): void
     {
         $areas = [
-            ['nombre' => 'Seguridad Industrial', ],
-            ['nombre' => 'Agrícola', ],
-            ['nombre' => 'Tecnológica', ],
+            ['nombre' => 'Pecuaria'],
+            ['nombre' => 'Agricola'],
+            ['nombre' => 'Acuicola'],
+            ['nombre' => 'FIC'],
+            ['nombre' => 'Comercio y servicios'],
+            ['nombre' => 'Agroindustria'],
+            ['nombre' => 'Hoteleria Y Turismo'],
+            ['nombre' => 'Ambiental'],
+            ['nombre' => 'Tecnoligia'],
+            ['nombre' => 'Confecciones'],
+            ['nombre' => 'Cultura'],
         ];
 
         foreach ($areas as $area) {
