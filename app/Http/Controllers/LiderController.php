@@ -7,6 +7,7 @@ use App\Models\Pedido;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 class LiderController extends Controller
@@ -95,35 +96,39 @@ class LiderController extends Controller
     // LiderController.php
 
 
-    public function enviarTodos()
-    {
-        $pedidosPorArea = Pedido::with(['usuario', 'elementos.area'])
-            ->where('estado', 'pendiente')
-            ->get()
-            ->groupBy(fn($pedido) => optional($pedido->elementos->first()->area)->nombre);
+ public function enviarTodos()
+{
+    $pedidosPorArea = Pedido::with(['usuario', 'elementos.area'])
+        ->where('estado', 'pendiente')
+        ->get()
+        ->groupBy(fn($pedido) => optional($pedido->elementos->first()->area)->nombre);
 
-        if ($pedidosPorArea->isEmpty()) {
-            return redirect()->back()->with('error', 'No hay pedidos pendientes para enviar.');
-        }
-
-        foreach ($pedidosPorArea as $area => $pedidos) {
-
-            // Enviar correo agrupado por área
-            Mail::to('juancabreras529@gmail.com')->send(new PedidoEnviadoAdmin($pedidos, $area));
-
-            // Actualizar pedidos
-            foreach ($pedidos as $pedido) {
-                foreach ($pedido->elementos as $elemento) {
-                    $cantidadSolicitada = $elemento->pivot->cantidad;
-                    $elemento->cantidad = max(0, $elemento->cantidad - $cantidadSolicitada);
-                    $elemento->save();
-                }
-
-                $pedido->estado = 'enviado';
-                $pedido->save();
-            }
-        }
-
-        return redirect()->back()->with('success', 'Pedidos agrupados por área enviados correctamente.');
+    if ($pedidosPorArea->isEmpty()) {
+        return redirect()->back()->with('error', 'No hay pedidos pendientes para enviar.');
     }
+
+    foreach ($pedidosPorArea as $area => $pedidos) {
+        // Enviar correo agrupado por área
+        Mail::to('juancabreras529@gmail.com')->send(new PedidoEnviadoAdmin($pedidos, $area));
+
+        // Actualizar pedidos y descontar inventario
+        foreach ($pedidos as $pedido) {
+            foreach ($pedido->elementos as $elemento) {
+                // ✅ CONVERTIR A ENTERO (ESTO SOLUCIONA EL ERROR)
+                $cantidadSolicitada = (int) $elemento->pivot->cantidad;
+
+                // ✅ DESCONTAR DEL INVENTARIO
+                DB::table('elementos_pp')
+                    ->where('id', $elemento->id)
+                    ->decrement('cantidad', $cantidadSolicitada);
+            }
+
+            // Cambiar estado a enviado
+            $pedido->estado = 'enviado';
+            $pedido->save();
+        }
+    }
+
+    return redirect()->back()->with('success', 'Pedidos agrupados por área enviados correctamente.');
+}
 }

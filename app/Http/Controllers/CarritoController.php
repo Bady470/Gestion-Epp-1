@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\ElementoPP;
 use App\Models\Pedido;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CarritoController extends Controller
 {
@@ -46,7 +47,7 @@ class CarritoController extends Controller
         return back()->with('success', 'Elemento eliminado del carrito');
     }
 
-    // Confirmar pedido (CORREGIDO)
+    // Confirmar pedido - DESCUENTA EL INVENTARIO
     public function confirmar()
     {
         $carrito = session()->get('carrito', []);
@@ -62,21 +63,25 @@ class CarritoController extends Controller
             'estado' => 'pendiente',
         ]);
 
-        // Asociar los elementos al pedido SIN descontar inventario
+        // Procesar cada elemento del carrito
         foreach ($carrito as $item) {
             $producto = ElementoPP::find($item['id']);
 
             if ($producto) {
-
                 // Validar que no pidan más de lo disponible
                 if ($producto->cantidad < $item['cantidad']) {
                     return back()->with('error', "No hay suficiente stock para {$producto->nombre}.");
                 }
 
-                // Guardar solo cantidad pedida
+                // Guardar cantidad pedida en la tabla pivote
                 $pedido->elementos()->attach($producto->id, [
                     'cantidad' => $item['cantidad'],
                 ]);
+
+                // ✅ DESCONTAR DEL INVENTARIO - CONVERTIR A ENTERO
+                DB::table('elementos_pp')
+                    ->where('id', $producto->id)
+                    ->decrement('cantidad', (int) $item['cantidad']);
             }
         }
 
