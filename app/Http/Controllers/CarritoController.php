@@ -17,24 +17,153 @@ class CarritoController extends Controller
         return view('carrito.index', compact('carrito'));
     }
 
-    // Agregar al carrito
+    // ✅ AGREGAR UN PRODUCTO AL CARRITO (AJAX - SIN REDIRECCIÓN)
     public function agregar(Request $request)
     {
-        $producto = ElementoPP::findOrFail($request->id);
+        try {
+            // Log para debugging
+            \Log::info('Carrito agregar llamado', [
+                'expectsJson' => $request->expectsJson(),
+                'id' => $request->id,
+                'cantidad' => $request->cantidad
+            ]);
 
-        $carrito = session()->get('carrito', []);
+            // Validar que exista el ID
+            if (!$request->has('id') || !$request->has('cantidad')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Faltan parámetros requeridos'
+                ], 400);
+            }
 
-        $carrito[$producto->id] = [
-            'id' => $producto->id,
-            'nombre' => $producto->nombre,
-            'cantidad' => $request->cantidad,
-            'disponible' => $producto->cantidad,
-            'img_url' => $producto->img_url,
-        ];
+            $producto = ElementoPP::findOrFail($request->id);
+            $cantidad = (int) $request->cantidad;
 
-        session()->put('carrito', $carrito);
+            // Validar cantidad
+            if ($cantidad <= 0 || $cantidad > $producto->cantidad) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cantidad inválida o insuficiente stock'
+                ], 400);
+            }
 
-        return redirect()->route('carrito.index')->with('success', 'Elemento agregado al carrito.');
+            $carrito = session()->get('carrito', []);
+
+            // Si el producto ya está en el carrito, sumar cantidad
+            if (isset($carrito[$producto->id])) {
+                $carrito[$producto->id]['cantidad'] += $cantidad;
+            } else {
+                // Agregar nuevo producto
+                $carrito[$producto->id] = [
+                    'id' => $producto->id,
+                    'nombre' => $producto->nombre,
+                    'cantidad' => $cantidad,
+                    'disponible' => $producto->cantidad,
+                    'img_url' => $producto->img_url,
+                ];
+            }
+
+            session()->put('carrito', $carrito);
+
+            \Log::info('Producto agregado al carrito', [
+                'producto_id' => $producto->id,
+                'cantidad' => $cantidad,
+                'carrito_count' => count($carrito)
+            ]);
+
+            // ✅ SIEMPRE responder con JSON
+            return response()->json([
+                'success' => true,
+                'message' => 'Producto agregado al carrito',
+                'carrito_count' => count($carrito)
+            ], 200);
+
+        } catch (\Exception $e) {
+            \Log::error('Error al agregar al carrito', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            // ✅ SIEMPRE responder con JSON
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // ✅ AGREGAR MÚLTIPLES PRODUCTOS AL CARRITO (AJAX)
+    public function agregarMultiple(Request $request)
+    {
+        try {
+            $items = $request->input('items', []);
+
+            if (empty($items)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No hay items para agregar'
+                ], 400);
+            }
+
+            $carrito = session()->get('carrito', []);
+            $items_agregados = 0;
+
+            foreach ($items as $item) {
+                // Validar que tenga id y cantidad
+                if (!isset($item['id']) || !isset($item['cantidad'])) {
+                    continue;
+                }
+
+                $producto = ElementoPP::find($item['id']);
+                $cantidad = (int) $item['cantidad'];
+
+                if (!$producto || $cantidad <= 0 || $cantidad > $producto->cantidad) {
+                    continue;
+                }
+
+                // Si el producto ya está en el carrito, sumar cantidad
+                if (isset($carrito[$producto->id])) {
+                    $carrito[$producto->id]['cantidad'] += $cantidad;
+                } else {
+                    // Agregar nuevo producto
+                    $carrito[$producto->id] = [
+                        'id' => $producto->id,
+                        'nombre' => $producto->nombre,
+                        'cantidad' => $cantidad,
+                        'disponible' => $producto->cantidad,
+                        'img_url' => $producto->img_url,
+                    ];
+                }
+
+                $items_agregados++;
+            }
+
+            session()->put('carrito', $carrito);
+
+            \Log::info('Múltiples productos agregados al carrito', [
+                'items_agregados' => $items_agregados,
+                'carrito_count' => count($carrito)
+            ]);
+
+            // ✅ SIEMPRE responder con JSON
+            return response()->json([
+                'success' => true,
+                'message' => "$items_agregados producto(s) agregado(s)",
+                'carrito_count' => count($carrito)
+            ], 200);
+
+        } catch (\Exception $e) {
+            \Log::error('Error al agregar múltiples al carrito', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            // ✅ SIEMPRE responder con JSON
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     // Eliminar elemento del carrito
@@ -47,7 +176,7 @@ class CarritoController extends Controller
         return back()->with('success', 'Elemento eliminado del carrito');
     }
 
-    // Confirmar pedido - DESCUENTA EL INVENTARIO
+    // Confirmar pedido
     public function confirmar()
     {
         $carrito = session()->get('carrito', []);
@@ -56,39 +185,54 @@ class CarritoController extends Controller
             return back()->with('error', 'Tu carrito está vacío.');
         }
 
-        // Crear el pedido
-        $pedido = Pedido::create([
-            'fecha' => now(),
-            'users_id' => Auth::id(),
-            'estado' => 'pendiente',
-        ]);
+        try {
+            // Crear el pedido
+            $pedido = Pedido::create([
+                'fecha' => now(),
+                'users_id' => Auth::id(),
+                'estado' => 'pendiente',
+            ]);
 
-        // Procesar cada elemento del carrito
-        foreach ($carrito as $item) {
-            $producto = ElementoPP::find($item['id']);
+            // Asociar los elementos al pedido
+            foreach ($carrito as $item) {
+                $producto = ElementoPP::find($item['id']);
 
-            if ($producto) {
-                // Validar que no pidan más de lo disponible
-                if ($producto->cantidad < $item['cantidad']) {
-                    return back()->with('error', "No hay suficiente stock para {$producto->nombre}.");
+                if ($producto) {
+                    // Validar que no pidan más de lo disponible
+                    if ($producto->cantidad < $item['cantidad']) {
+                        return back()->with('error', "No hay suficiente stock para {$producto->nombre}.");
+                    }
+
+                    // Guardar cantidad pedida
+                    $pedido->elementos()->attach($producto->id, [
+                        'cantidad' => $item['cantidad'],
+                    ]);
+
+                    // ✅ DESCONTAR DEL INVENTARIO
+                    DB::table('elementos_pp')
+                        ->where('id', $producto->id)
+                        ->decrement('cantidad', (int) $item['cantidad']);
                 }
-
-                // Guardar cantidad pedida en la tabla pivote
-                $pedido->elementos()->attach($producto->id, [
-                    'cantidad' => $item['cantidad'],
-                ]);
-
-                // ✅ DESCONTAR DEL INVENTARIO - CONVERTIR A ENTERO
-                DB::table('elementos_pp')
-                    ->where('id', $producto->id)
-                    ->decrement('cantidad', (int) $item['cantidad']);
             }
+
+            // Vaciar carrito
+            session()->forget('carrito');
+
+            \Log::info('Pedido confirmado', [
+                'pedido_id' => $pedido->id,
+                'usuario_id' => Auth::id(),
+                'items_count' => count($carrito)
+            ]);
+
+            return redirect()->route('dashboard.instructor')
+                             ->with('success', 'Pedido enviado al líder 📦');
+        } catch (\Exception $e) {
+            \Log::error('Error al confirmar pedido', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return back()->with('error', 'Error al confirmar pedido: ' . $e->getMessage());
         }
-
-        // Vaciar carrito
-        session()->forget('carrito');
-
-        return redirect()->route('dashboard.instructor')
-                         ->with('success', 'Pedido enviado al líder 📦');
     }
 }

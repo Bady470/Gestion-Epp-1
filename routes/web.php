@@ -41,7 +41,7 @@ Route::prefix('admin')->group(function () {
 });
 
 
-    
+
 
     // Instructor
 
@@ -75,6 +75,7 @@ Route::post('/lider/enviar-todos', [LiderController::class, 'enviarTodos'])
 
     // rutas del carrito de compras
     Route::post('/carrito/agregar', [CarritoController::class, 'agregar'])->name('carrito.agregar');
+     Route::post('/carrito/agregar-multiple', [CarritoController::class, 'agregarMultiple'])->name('carrito.agregarMultiple');
     Route::get('/carrito', [CarritoController::class, 'index'])->name('carrito.index');
     Route::delete('/carrito/eliminar/{id}', [CarritoController::class, 'eliminar'])->name('carrito.eliminar');
     Route::post('/carrito/confirmar', [CarritoController::class, 'confirmar'])->name('carrito.confirmar');
@@ -92,7 +93,7 @@ Route::post('/lider/enviar-todos', [LiderController::class, 'enviarTodos'])
      Route::post('/users/import', [UserImportController::class, 'import']);
     Route::post('/programas/import', [ProgramaImportController::class, 'import']);
     Route::post('/fichas/import', [FichaImportController::class, 'import']);
-    
+
     Route::post('/epp/import', [EppImportController::class, 'import']);
     Route::post('/elementos_pp/import', [ElementoPPController::class, 'import'])
     ->name('elementos_pp.import');
