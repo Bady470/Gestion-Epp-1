@@ -13,7 +13,7 @@ return new class extends Migration
 {
     Schema::create('elementos_pp', function (Blueprint $table) {
         $table->id();
-        $table->string('nombre', 45);
+        $table->string('nombre', 245);
         $table->string('descripcion', 255)->nullable();
         $table->string('img_url', 100)->nullable();
         $table->integer('cantidad')->default(0);
