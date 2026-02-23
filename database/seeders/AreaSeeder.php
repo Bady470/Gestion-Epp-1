@@ -18,7 +18,7 @@ class AreaSeeder extends Seeder
             ['nombre' => 'Agroindustria'],
             ['nombre' => 'Hoteleria Y Turismo'],
             ['nombre' => 'Ambiental'],
-            ['nombre' => 'Tecnoligia'],
+            ['nombre' => 'Tecnologia'],
             ['nombre' => 'Confecciones'],
             ['nombre' => 'Cultura'],
         ];
