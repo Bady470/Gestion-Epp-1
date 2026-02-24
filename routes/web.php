@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\ElementoPPController;
 
+use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\FichaController;
@@ -35,28 +36,34 @@ Route::middleware('auth')->group(function () {
         return view('dashboard.admin');
     })->name('dashboard.admin');
 
-Route::prefix('admin')->group(function () {
-    Route::get('/pedidos', [AdminPedidoController::class, 'index'])->name('admin.pedidos.index');
-  Route::get('/pedidos/{id}', [AdminPedidoController::class, 'show'])->name('admin.pedidos.show');
-});
+    Route::prefix('admin')->group(function () {
+        Route::get('/pedidos', [AdminPedidoController::class, 'index'])->name('admin.pedidos.index');
+        Route::get('/pedidos/{id}', [AdminPedidoController::class, 'show'])->name('admin.pedidos.show');
+        Route::get('/dashboard/admin', [AdminPedidoController::class, 'dashboard'])->name('dashboard.admin');
 
-
-
+        Route::prefix('notificaciones')->group(function () {
+            Route::get('/', [NotificacionController::class, 'index'])->name('notificaciones.index');
+            Route::post('/{id}/marcar-leida', [NotificacionController::class, 'marcarLeida'])->name('notificaciones.marcar-leida');
+            Route::post('/{id}/marcar-no-leida', [NotificacionController::class, 'marcarNoLeida'])->name('notificaciones.marcar-no-leida');
+            Route::post('/marcar-todas-leidas', [NotificacionController::class, 'marcarTodasLeidas'])->name('notificaciones.marcar-todas');
+            Route::delete('/{id}', [NotificacionController::class, 'destroy'])->name('notificaciones.destroy');
+        });
+    });
 
     // Instructor
 
     Route::get('/instructor/dashboard', [InstructoresController::class, 'index'])
         ->name('dashboard.instructor');
 
-// Líder
+    // Líder
     Route::get('/dashboard/lider', [LiderController::class, 'index'])
-         ->name('dashboard.lider');
+        ->name('dashboard.lider');
 
 
     // Route::get('/dashboard/lider', [LiderController::class, 'index'])->name('lider.index');
     Route::post('/lider/enviar/{id}', [LiderController::class, 'enviarPedido'])->name('lider.enviar');
-Route::post('/lider/enviar-todos', [LiderController::class, 'enviarTodos'])
-    ->name('lider.enviar.todos');
+    Route::post('/lider/enviar-todos', [LiderController::class, 'enviarTodos'])
+        ->name('lider.enviar.todos');
 
 
     // crud de usuarios que lo maneja el admin
@@ -75,7 +82,7 @@ Route::post('/lider/enviar-todos', [LiderController::class, 'enviarTodos'])
 
     // rutas del carrito de compras
     Route::post('/carrito/agregar', [CarritoController::class, 'agregar'])->name('carrito.agregar');
-     Route::post('/carrito/agregar-multiple', [CarritoController::class, 'agregarMultiple'])->name('carrito.agregarMultiple');
+    Route::post('/carrito/agregar-multiple', [CarritoController::class, 'agregarMultiple'])->name('carrito.agregarMultiple');
     Route::get('/carrito', [CarritoController::class, 'index'])->name('carrito.index');
     Route::delete('/carrito/eliminar/{id}', [CarritoController::class, 'eliminar'])->name('carrito.eliminar');
     Route::post('/carrito/confirmar', [CarritoController::class, 'confirmar'])->name('carrito.confirmar');
@@ -90,12 +97,11 @@ Route::post('/lider/enviar-todos', [LiderController::class, 'enviarTodos'])
 
 
     // rutas de importacion de archivos excel
-     Route::post('/users/import', [UserImportController::class, 'import']);
+    Route::post('/users/import', [UserImportController::class, 'import']);
     Route::post('/programas/import', [ProgramaImportController::class, 'import']);
     Route::post('/fichas/import', [FichaImportController::class, 'import']);
 
     Route::post('/epp/import', [EppImportController::class, 'import']);
     Route::post('/elementos_pp/import', [ElementoPPController::class, 'import'])
-    ->name('elementos_pp.import');
-
+        ->name('elementos_pp.import');
 });

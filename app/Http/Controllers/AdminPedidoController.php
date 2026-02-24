@@ -17,4 +17,13 @@ class AdminPedidoController extends Controller
         $pedido = Pedido::with(['usuario', 'elementos.area'])->findOrFail($id);
         return view('admin.pedidos.show', compact('pedido'));
     }
+
+    public function dashboard()
+{
+    // Contar notificaciones no leídas para el admin
+    $notificacionesNoLeidas = \App\Models\Notificacion::where('leida', false)->count();
+
+    return view('dashboard.admin', compact('notificacionesNoLeidas'));
+}
+
 }

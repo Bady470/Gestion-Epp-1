@@ -15,7 +15,7 @@ class Pedido extends Model
         'fecha',
         'users_id',
         'fichas_id',
-        'estado', 
+        'estado',
 
     ];
 
@@ -29,10 +29,12 @@ class Pedido extends Model
         return $this->belongsTo(Ficha::class, 'fichas_id');
     }
 
-    public function elementos()
-    {
-        return $this->belongsToMany(ElementoPP::class, 'elementos_x_pedido', 'pedidos_id', 'elementos_pp_id');
-    }
+   public function elementos()
+{
+    return $this->belongsToMany(ElementoPP::class, 'elementos_x_pedido', 'pedidos_id', 'elementos_pp_id')
+                ->withPivot('cantidad'); // 👈 ESTO ES LO QUE FALTA
+}
+
 
     public function solicitudes()
     {

@@ -5,8 +5,9 @@ namespace App\Http\Controllers;
 use App\Mail\PedidoEnviadoAdmin;
 use App\Models\Pedido;
 use App\Models\User;
-use Illuminate\Http\Request;
+use App\Models\Notificacion;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
@@ -96,39 +97,50 @@ class LiderController extends Controller
     // LiderController.php
 
 
- public function enviarTodos()
+public function enviarTodos(Request $request)
 {
-    $pedidosPorArea = Pedido::with(['usuario', 'elementos.area'])
-        ->where('estado', 'pendiente')
-        ->get()
-        ->groupBy(fn($pedido) => optional($pedido->elementos->first()->area)->nombre);
+    $pedidos = Pedido::where('estado', 'pendiente')
+                ->whereHas('usuario', function($query) {
+                    $query->where('areas_id', Auth::user()->areas_id);
+                })->get();
 
-    if ($pedidosPorArea->isEmpty()) {
-        return redirect()->back()->with('error', 'No hay pedidos pendientes para enviar.');
+    if ($pedidos->isEmpty()) {
+        return back()->with('error', 'No hay pedidos pendientes para enviar.');
     }
 
-    foreach ($pedidosPorArea as $area => $pedidos) {
-        // Enviar correo agrupado por área
-        Mail::to('juancabreras529@gmail.com')->send(new PedidoEnviadoAdmin($pedidos, $area));
-
-        // Actualizar pedidos y descontar inventario
-        foreach ($pedidos as $pedido) {
-            foreach ($pedido->elementos as $elemento) {
-                // ✅ CONVERTIR A ENTERO (ESTO SOLUCIONA EL ERROR)
-                $cantidadSolicitada = (int) $elemento->pivot->cantidad;
-
-                // ✅ DESCONTAR DEL INVENTARIO
-                DB::table('elementos_pp')
-                    ->where('id', $elemento->id)
-                    ->decrement('cantidad', $cantidadSolicitada);
-            }
-
-            // Cambiar estado a enviado
-            $pedido->estado = 'enviado';
-            $pedido->save();
-        }
+    foreach ($pedidos as $pedido) {
+        $pedido->update(['estado' => 'enviado']);
     }
 
-    return redirect()->back()->with('success', 'Pedidos agrupados por área enviados correctamente.');
+    // 🔍 PRUEBA: Vamos a ver si encontramos al admin
+    // Cambia el '1' por el ID real del rol de admin si es necesario
+    $admin = User::where('roles_id', 1)->first();
+
+    try {
+        // Intentamos crear la notificación
+        $nuevaNotificacion = Notificacion::create([
+            'user_id' => $admin->id ?? Auth::id(), // Si no hay admin, se la asigna al mismo líder para probar
+            'titulo' => 'Nuevos pedidos recibidos',
+            'mensaje' => 'El líder ' . Auth::user()->nombre_completo . ' ha enviado ' . $pedidos->count() . ' pedidos.',
+            'leida' => false,
+            'correo_enviado' => false,
+            'datos_adicionales' => [
+                'area' => Auth::user()->area->nombre ?? 'Sin área',
+                'cantidad_pedidos' => $pedidos->count(),
+                'enviado_por' => Auth::user()->nombre_completo,
+            ]
+        ]);
+
+        // Si llegamos aquí, se guardó. Vamos a confirmar:
+        // dd($nuevaNotificacion);
+
+    } catch (\Exception $e) {
+        // Si hay un error de base de datos, esto lo detendrá y te mostrará el error real
+        dd("Error al crear notificación: " . $e->getMessage());
+    }
+
+    return back()->with('success', '¡Todos los pedidos han sido enviados al administrador con éxito!');
 }
+
+
 }

@@ -8,7 +8,7 @@
             <p><strong>Instructor:</strong> {{ $pedido->usuario->nombre_completo }}</p>
             <p><strong>Fecha:</strong> {{ $pedido->created_at->format('d/m/Y H:i') }}</p>
             <p><strong>Estado:</strong>
-                <span class="badge 
+                <span class="badge
                     @if($pedido->estado == 'pendiente') bg-warning text-dark
                     @elseif($pedido->estado == 'enviado') bg-info text-dark
                     @elseif($pedido->estado == 'aprobado') bg-success
@@ -26,7 +26,7 @@
         <thead class="table-light">
             <tr>
                 <th>Nombre</th>
-                <th>Cantidad</th>
+                <th>Cantidad Solicitada</th> <!-- 👈 Título más claro -->
                 <th>Área</th>
             </tr>
         </thead>
@@ -34,7 +34,10 @@
             @foreach($pedido->elementos as $item)
             <tr>
                 <td>{{ $item->nombre }}</td>
-                <td>{{ $item->cantidad }}</td>
+                <td class="fw-bold text-primary">
+                    <!-- 🎯 CAMBIO CLAVE: Usamos 'pivot' para traer el valor real -->
+                    {{ $item->pivot->cantidad }}
+                </td>
                 <td>{{ $item->area->nombre ?? '-' }}</td>
             </tr>
             @endforeach
