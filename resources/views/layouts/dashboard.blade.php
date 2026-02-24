@@ -161,7 +161,12 @@
                         </ul>
                     </div>
 
-                    <!-- 🔔 Icono de Notificaciones -->
+
+
+                </div>
+
+            </div>
+            <!-- 🔔 Icono de Notificaciones -->
                     <div class="relative inline-block mr-4">
                         <a href="{{ route('notificaciones.index') }}"
                             class="text-gray-600 hover:text-blue-600 transition-colors">
@@ -174,9 +179,6 @@
                             @endif
                         </a>
                     </div>
-
-                </div>
-            </div>
         </nav>
     </header>
 
