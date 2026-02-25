@@ -20,7 +20,11 @@ public function index()
 }
 
 
-
+ public function count()
+    {
+        $count = Notificacion::where('leida', false)->count();
+        return response()->json(['count' => $count]);
+    }
     public function marcarLeida($id)
     {
         $notificacion = Notificacion::findOrFail($id);
