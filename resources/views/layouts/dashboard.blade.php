@@ -440,8 +440,31 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Script para animaciones -->
+    <!-- Script para animaciones y notificaciones optimizado -->
     <script>
+        // Función para actualizar notificaciones
+        function actualizarNotificaciones() {
+            fetch('/admin/notificaciones/count')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.querySelector('.notification-badge');
+                    if (data.count > 0) {
+                        if (!badge) {
+                            const bell = document.querySelector('.notification-bell');
+                            const newBadge = document.createElement('span');
+                            newBadge.className = 'notification-badge';
+                            newBadge.textContent = data.count > 99 ? '99+' : data.count;
+                            bell.appendChild(newBadge);
+                        } else {
+                            badge.textContent = data.count > 99 ? '99+' : data.count;
+                        }
+                    } else if (badge) {
+                        badge.remove();
+                    }
+                })
+                .catch(error => console.error('Error al actualizar notificaciones:', error));
+        }
+
         // Animación suave al cargar la página
         document.addEventListener('DOMContentLoaded', function() {
             // Agregar animación a las tarjetas
@@ -450,28 +473,11 @@
                 card.style.animation = `slideDown 0.3s ease ${index * 0.1}s both`;
             });
 
-            // Actualizar notificaciones cada 30 segundos usando URL directa
-            setInterval(function() {
-                fetch('/admin/notificaciones/count')
-                    .then(response => response.json())
-                    .then(data => {
-                        const badge = document.querySelector('.notification-badge');
-                        if (data.count > 0) {
-                            if (!badge) {
-                                const bell = document.querySelector('.notification-bell');
-                                const newBadge = document.createElement('span');
-                                newBadge.className = 'notification-badge';
-                                newBadge.textContent = data.count > 99 ? '99+' : data.count;
-                                bell.appendChild(newBadge);
-                            } else {
-                                badge.textContent = data.count > 99 ? '99+' : data.count;
-                            }
-                        } else if (badge) {
-                            badge.remove();
-                        }
-                    })
-                    .catch(error => console.error('Error al actualizar notificaciones:', error));
-            }, 30000); // Actualizar cada 30 segundos
+            // ACTUALIZAR NOTIFICACIONES INMEDIATAMENTE AL CARGAR
+            actualizarNotificaciones();
+
+            // Luego actualizar cada 30 segundos
+            setInterval(actualizarNotificaciones, 30000);
         });
     </script>
 </body>
