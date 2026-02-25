@@ -43,6 +43,7 @@ Route::middleware('auth')->group(function () {
 
         Route::prefix('notificaciones')->group(function () {
             Route::get('/', [NotificacionController::class, 'index'])->name('notificaciones.index');
+            Route::get('/count', [NotificacionController::class, 'count'])->name('count');
             Route::post('/{id}/marcar-leida', [NotificacionController::class, 'marcarLeida'])->name('notificaciones.marcar-leida');
             Route::post('/{id}/marcar-no-leida', [NotificacionController::class, 'marcarNoLeida'])->name('notificaciones.marcar-no-leida');
             Route::post('/marcar-todas-leidas', [NotificacionController::class, 'marcarTodasLeidas'])->name('notificaciones.marcar-todas');
