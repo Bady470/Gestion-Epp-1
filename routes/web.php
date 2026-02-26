@@ -1,10 +1,10 @@
 <?php
 
 use App\Http\Controllers\AdminPedidoController;
-use App\Http\Controllers\Api\EppImportController;
-use App\Http\Controllers\Api\FichaImportController;
-use App\Http\Controllers\Api\ProgramaImportController;
-use App\Http\Controllers\Api\UserImportController;
+use App\Http\Controllers\EppImportController;
+use App\Http\Controllers\FichaImportController;
+use App\Http\Controllers\ProgramaImportController;
+use App\Http\Controllers\UserImportController;
 use App\Http\Controllers\LiderController;
 use App\Http\Controllers\SolicitudController;
 use Illuminate\Support\Facades\Route;
@@ -89,6 +89,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/carrito', [CarritoController::class, 'index'])->name('carrito.index');
     Route::delete('/carrito/eliminar/{id}', [CarritoController::class, 'eliminar'])->name('carrito.eliminar');
     Route::post('/carrito/confirmar', [CarritoController::class, 'confirmar'])->name('carrito.confirmar');
+
+
     // 🔹 Pedidos del líder
     Route::get('/lider/pedidos', [LiderController::class, 'index'])->name('lider.pedidos');
     Route::post('/lider/pedidos/{id}/aprobar', [LiderController::class, 'aprobar'])->name('lider.aprobar');

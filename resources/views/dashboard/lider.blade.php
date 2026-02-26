@@ -1,4 +1,4 @@
-@extends('layouts.instructores')
+@extends('layouts.lider')
 
 @section('content')
 <style>
