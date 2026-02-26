@@ -163,7 +163,7 @@
         margin-right: 0.5rem;
     }
 
-    /* Selector de talla */
+    /* Selector de talla MEJORADO */
     .talla-selector {
         margin-bottom: 1rem;
         padding: 1rem;
@@ -180,6 +180,54 @@
         display: block;
     }
 
+    /* Contenedor de opciones de talla */
+    .talla-options {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    /* Botones de talla predefinida */
+    .talla-btn {
+        padding: 0.5rem 0.75rem;
+        border: 2px solid #ddd;
+        background: white;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.2s ease;
+    }
+
+    .talla-btn:hover {
+        border-color: var(--sena-blue);
+        background: #f0f0f0;
+    }
+
+    .talla-btn.active {
+        background: linear-gradient(135deg, var(--sena-blue), var(--sena-green));
+        color: white;
+        border-color: var(--sena-green);
+    }
+
+    /* Input personalizado para talla */
+    .talla-custom-input {
+        width: 100%;
+        padding: 0.5rem;
+        border: 2px solid #ddd;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .talla-custom-input:focus {
+        outline: none;
+        border-color: var(--sena-green);
+        box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.1);
+    }
+
     .talla-display {
         display: flex;
         align-items: center;
@@ -191,6 +239,7 @@
         font-weight: 600;
         font-size: 1.1rem;
         gap: 0.5rem;
+        margin-top: 0.5rem;
     }
 
     .talla-display i {
@@ -371,6 +420,15 @@
         .producto-card {
             margin-bottom: 1rem;
         }
+
+        .talla-options {
+            gap: 0.3rem;
+        }
+
+        .talla-btn {
+            padding: 0.4rem 0.6rem;
+            font-size: 0.75rem;
+        }
     }
 
     /* Animaciones */
@@ -469,30 +527,40 @@
                         @endif
                     </div>
 
-                    <!-- Mostrar talla de la base de datos -->
-                    @if ($epp->talla)
+                    <!-- Selector de talla MEJORADO -->
                     <div class="talla-selector">
                         <label class="talla-label">
                             <i class="bi bi-rulers"></i> Talla del producto:
                         </label>
-                        <div class="talla-display">
+
+                        <!-- Opciones predefinidas de talla -->
+                        <div class="talla-options">
+                            <button type="button" class="talla-btn" onclick="seleccionarTalla('{{ $epp->id }}', 'XS')">XS</button>
+                            <button type="button" class="talla-btn" onclick="seleccionarTalla('{{ $epp->id }}', 'S')">S</button>
+                            <button type="button" class="talla-btn" onclick="seleccionarTalla('{{ $epp->id }}', 'M')">M</button>
+                            <button type="button" class="talla-btn" onclick="seleccionarTalla('{{ $epp->id }}', 'L')">L</button>
+                            <button type="button" class="talla-btn" onclick="seleccionarTalla('{{ $epp->id }}', 'XL')">XL</button>
+                            <button type="button" class="talla-btn" onclick="seleccionarTalla('{{ $epp->id }}', 'XXL')">XXL</button>
+                        </div>
+
+                        <!-- Input personalizado para talla -->
+                        <input
+                            type="text"
+                            id="talla-{{ $epp->id }}"
+                            class="talla-custom-input"
+                            placeholder="O escribe una talla personalizada (ej: 34, 35, 36, UNICA)"
+                            value="{{ $epp->talla ?? '' }}"
+                        >
+
+                        <!-- Mostrar talla seleccionada -->
+                        <div class="talla-display" id="talla-display-{{ $epp->id }}">
                             <i class="bi bi-check2-circle"></i>
-                            {{ $epp->talla }}
+                            <span id="talla-text-{{ $epp->id }}">{{ $epp->talla ?? 'Sin seleccionar' }}</span>
                         </div>
-                        <input type="hidden" id="talla-{{ $epp->id }}" value="{{ $epp->talla }}">
+
+                        <!-- Input hidden para enviar al servidor -->
+                        <input type="hidden" id="talla-hidden-{{ $epp->id }}" value="{{ $epp->talla ?? '' }}">
                     </div>
-                    @else
-                    <div class="talla-selector">
-                        <label class="talla-label">
-                            <i class="bi bi-exclamation-circle"></i> Talla del producto:
-                        </label>
-                        <div class="talla-display sin-talla">
-                            <i class="bi bi-question-circle"></i>
-                            Sin especificar
-                        </div>
-                        <input type="hidden" id="talla-{{ $epp->id }}" value="">
-                    </div>
-                    @endif
 
                     <!-- Selector de cantidad -->
                     <div class="cantidad-selector">
@@ -546,6 +614,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+<!-- SCRIPT MEJORADO CON SELECTOR DE TALLA EDITABLE -->
 <script>
 // Cambiar cantidad con botones + y -
 function changeQuantity(id, delta) {
@@ -568,10 +637,65 @@ function mostrarToast(mensaje) {
     toast.show();
 }
 
-// Agregar producto individual sin redirección
+// 👈 NUEVA FUNCIÓN: Seleccionar talla predefinida
+function seleccionarTalla(id, talla) {
+    // Actualizar input hidden
+    document.getElementById(`talla-hidden-${id}`).value = talla;
+
+    // Actualizar input visible
+    document.getElementById(`talla-${id}`).value = talla;
+
+    // Actualizar display
+    document.getElementById(`talla-text-${id}`).textContent = talla;
+
+    // Marcar botón como activo
+    const botones = document.querySelectorAll(`#card-${id} .talla-btn`);
+    botones.forEach(btn => {
+        if (btn.textContent === talla) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+
+    console.log(`Talla seleccionada para producto ${id}: ${talla}`);
+}
+
+// 👈 NUEVA FUNCIÓN: Actualizar talla cuando se escribe en el input
+document.addEventListener('DOMContentLoaded', function() {
+    // Obtener todos los inputs de talla personalizada
+    document.querySelectorAll('[id^="talla-"]').forEach(input => {
+        if (input.id.includes('custom-input') || input.classList.contains('talla-custom-input')) {
+            input.addEventListener('input', function() {
+                const id = this.id.replace('talla-', '');
+                const talla = this.value.trim();
+
+                if (talla) {
+                    // Actualizar hidden input
+                    document.getElementById(`talla-hidden-${id}`).value = talla;
+
+                    // Actualizar display
+                    document.getElementById(`talla-text-${id}`).textContent = talla;
+
+                    // Remover clase active de todos los botones
+                    const botones = document.querySelectorAll(`#card-${id} .talla-btn`);
+                    botones.forEach(btn => btn.classList.remove('active'));
+                }
+            });
+        }
+    });
+});
+
+// ✅ FUNCIÓN: Agregar producto individual
 function agregarAlCarritoAjax(id, nombre) {
     const cantidad = parseInt(document.getElementById(`qty-${id}`).value) || 0;
-    const talla = document.getElementById(`talla-${id}`).value;
+
+    // 👈 OBTENER TALLA DEL INPUT HIDDEN
+    const talla = document.getElementById(`talla-hidden-${id}`)?.value ||
+                  document.getElementById(`talla-${id}`)?.value ||
+                  null;
+
+    console.log('DEBUG:', { id, nombre, cantidad, talla });
 
     // Validar que la cantidad sea mayor a 0
     if (cantidad <= 0) {
@@ -579,9 +703,9 @@ function agregarAlCarritoAjax(id, nombre) {
         return;
     }
 
-    // Validar que la talla exista
-    if (!talla) {
-        mostrarToast('⚠️ Este producto no tiene talla especificada');
+    // Validar que la talla exista y no esté vacía
+    if (!talla || talla.trim() === '') {
+        mostrarToast('⚠️ Debes seleccionar una talla');
         return;
     }
 
@@ -602,7 +726,7 @@ function agregarAlCarritoAjax(id, nombre) {
         body: JSON.stringify({
             id: id,
             cantidad: cantidad,
-            talla: talla
+            talla: talla.trim()
         })
     })
     .then(response => response.json())
@@ -620,7 +744,7 @@ function agregarAlCarritoAjax(id, nombre) {
     });
 }
 
-// Agregar todo al carrito
+// ✅ FUNCIÓN: Agregar todo al carrito
 function agregarTodoAlCarrito() {
     const items = [];
 
@@ -629,10 +753,14 @@ function agregarTodoAlCarrito() {
         const cantidad = parseInt(input.value) || 0;
         if (cantidad > 0) {
             const id = input.id.replace('qty-', '');
-            const talla = document.getElementById(`talla-${id}`).value;
 
-            // Validar que la talla exista
-            if (!talla) {
+            // 👈 OBTENER TALLA DEL INPUT HIDDEN
+            const talla = document.getElementById(`talla-hidden-${id}`)?.value ||
+                          document.getElementById(`talla-${id}`)?.value ||
+                          null;
+
+            // Validar que la talla exista y no esté vacía
+            if (!talla || talla.trim() === '') {
                 mostrarToast(`⚠️ El producto ${id} no tiene talla especificada`);
                 return;
             }
@@ -640,7 +768,7 @@ function agregarTodoAlCarrito() {
             items.push({
                 id: id,
                 cantidad: cantidad,
-                talla: talla
+                talla: talla.trim()
             });
         }
     });
@@ -688,4 +816,5 @@ function agregarTodoAlCarrito() {
     });
 }
 </script>
+
 @endsection

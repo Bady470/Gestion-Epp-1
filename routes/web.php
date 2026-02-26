@@ -40,6 +40,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/pedidos', [AdminPedidoController::class, 'index'])->name('admin.pedidos.index');
         Route::get('/pedidos/{id}', [AdminPedidoController::class, 'show'])->name('admin.pedidos.show');
         Route::get('/dashboard/admin', [AdminPedidoController::class, 'dashboard'])->name('dashboard.admin');
+         Route::get('/productos/area', [AdminPedidoController::class, 'productosArea'])->name('admin.productos.area');
 
         Route::prefix('notificaciones')->group(function () {
             Route::get('/', [NotificacionController::class, 'index'])->name('notificaciones.index');

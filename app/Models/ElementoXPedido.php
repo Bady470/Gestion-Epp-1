@@ -10,5 +10,5 @@ class ElementoXPedido extends Model
     use HasFactory;
 
     protected $table = 'elementos_x_pedido';
-    protected $fillable = ['pedidos_id', 'elementos_pp_id'];
+    protected $fillable = ['pedidos_id', 'elementos_pp_id', 'cantidad', 'talla']; // 👈 AGREGADO: 'cantidad', 'talla'
 }
