@@ -16,8 +16,23 @@ class AdminPedidoController extends Controller
 
     public function show($id)
     {
-        $pedido = Pedido::with(['usuario', 'elementos.area'])->findOrFail($id);
-        return view('admin.pedidos.show', compact('pedido'));
+        $pedido = Pedido::with(['usuario', 'elementos.area', 'ficha.programa'])->findOrFail($id);
+
+        // 👈 NUEVO: Obtener todos los pedidos del área para el resumen consolidado
+        $area = $pedido->elementos->first()->area ?? null;
+        $pedidosDelArea = [];
+
+        if ($area) {
+            $pedidosDelArea = Pedido::with(['elementos' => function($q) use ($area) {
+                $q->where('areas_id', $area->id);
+            }, 'usuario'])
+            ->whereHas('elementos', function($q) use ($area) {
+                $q->where('areas_id', $area->id);
+            })
+            ->get();
+        }
+
+        return view('admin.pedidos.show', compact('pedido', 'pedidosDelArea', 'area'));
     }
 
     public function dashboard()
@@ -66,6 +81,63 @@ class AdminPedidoController extends Controller
         return response()->json([
             'success' => true,
             'productos' => $productos
+        ]);
+    }
+
+    // 👈 NUEVO: Obtener resumen consolidado de pedidos por área
+    public function resumenConsolidado($areaId)
+    {
+        // Obtener todos los pedidos del área
+        $pedidos = Pedido::with(['elementos' => function($q) use ($areaId) {
+            $q->where('areas_id', $areaId);
+        }, 'usuario'])
+        ->whereHas('elementos', function($q) use ($areaId) {
+            $q->where('areas_id', $areaId);
+        })
+        ->get();
+
+        if ($pedidos->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No hay pedidos para esta área'
+            ], 404);
+        }
+
+        // Consolidar: agrupar por nombre de producto y talla
+        $consolidado = [];
+
+        foreach ($pedidos as $pedido) {
+            foreach ($pedido->elementos as $elemento) {
+                $clave = $elemento->nombre . '|' . ($elemento->pivot->talla ?? 'Sin talla');
+
+                if (!isset($consolidado[$clave])) {
+                    $consolidado[$clave] = [
+                        'nombre' => $elemento->nombre,
+                        'talla' => $elemento->pivot->talla ?? 'Sin talla especificada',
+                        'cantidad_total' => 0,
+                        'area' => $elemento->area->nombre ?? '-',
+                        'proteccion' => $elemento->filtro->parte_del_cuerpo ?? '-',
+                        'pedidos_count' => 0,
+                    ];
+                }
+
+                $consolidado[$clave]['cantidad_total'] += $elemento->pivot->cantidad;
+                $consolidado[$clave]['pedidos_count'] = count(array_unique(
+                    array_column($consolidado, 'pedidos_count')
+                ));
+            }
+        }
+
+        // Ordenar por nombre
+        uasort($consolidado, function($a, $b) {
+            return strcmp($a['nombre'], $b['nombre']);
+        });
+
+        return response()->json([
+            'success' => true,
+            'consolidado' => array_values($consolidado),
+            'total_pedidos' => $pedidos->count(),
+            'total_unidades' => array_sum(array_column($consolidado, 'cantidad_total'))
         ]);
     }
 }

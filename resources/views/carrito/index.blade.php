@@ -11,6 +11,7 @@
                 <tr class="text-center">
                     <th>Imagen</th>
                     <th>Nombre</th>
+                    <th>Talla</th>
                     <th>Cantidad a Pedir</th>
                     <th>Disponible Ahora</th>
                     <th>Quedará Después</th>
@@ -18,16 +19,27 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($carrito as $item)
+                @foreach($carrito as $key => $item)
                 <tr>
                     <td class="text-center">
-                        <img src="{{ asset($item['img_url']) }}" width="80" class="rounded">
+                        {{-- 👈 NUEVO: Verificar si img_url existe --}}
+                        @if(isset($item['img_url']) && $item['img_url'])
+                            <img src="{{ asset($item['img_url']) }}" width="80" class="rounded">
+                        @else
+                            <div class="bg-light p-3 rounded" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                                <i class="bi bi-image" style="font-size: 2rem; color: #ccc;"></i>
+                            </div>
+                        @endif
                     </td>
-                    <td>{{ $item['nombre'] }}</td>
+                    <td>{{ $item['nombre'] ?? 'Producto sin nombre' }}</td>
+                    <td class="text-center">
+                        <span class="badge bg-secondary">{{ $item['talla'] ?? 'Sin talla' }}</span>
+                    </td>
                     <td class="text-center">
                         <span class="badge bg-primary">{{ $item['cantidad'] }}</span>
                     </td>
                     <td class="text-center">
+                        {{-- 👈 NUEVO: Verificar si disponible existe --}}
                         <span class="badge bg-success">{{ $item['disponible'] ?? 'N/D' }}</span>
                     </td>
                     <td class="text-center">
@@ -41,7 +53,7 @@
                         @endif
                     </td>
                     <td class="text-center">
-                        <form action="{{ route('carrito.eliminar', $item['id']) }}" method="POST">
+                        <form action="{{ route('carrito.eliminar', $key) }}" method="POST" style="display: inline;">
                             @csrf
                             @method('DELETE')
                             <button class="btn btn-danger btn-sm">
@@ -63,6 +75,7 @@
                 <thead>
                     <tr>
                         <th>Producto</th>
+                        <th class="text-center">Talla</th>
                         <th class="text-center">Disponible</th>
                         <th class="text-center">Se Descargará</th>
                         <th class="text-center">Quedará</th>
@@ -78,7 +91,10 @@
                         $totalDescuento += $item['cantidad'];
                     @endphp
                     <tr>
-                        <td>{{ $item['nombre'] }}</td>
+                        <td>{{ $item['nombre'] ?? 'Producto sin nombre' }}</td>
+                        <td class="text-center">
+                            <span class="badge bg-secondary">{{ $item['talla'] ?? 'Sin talla' }}</span>
+                        </td>
                         <td class="text-center">
                             <strong>{{ $item['disponible'] ?? 'N/D' }}</strong>
                         </td>
@@ -106,7 +122,7 @@
 
     {{-- 🔹 Botón para confirmar y enviar el pedido al líder --}}
     <div class="d-flex justify-content-end mt-4 gap-2">
-        <a href="{{ route('carrito.index') }}" class="btn btn-secondary btn-lg">
+        <a href="{{ route('dashboard.instructor') }}" class="btn btn-secondary btn-lg">
             ← Volver
         </a>
         <form action="{{ route('carrito.confirmar') }}" method="POST">
@@ -121,6 +137,9 @@
     <div class="alert alert-info text-center mt-4">
         <h5>Tu carrito está vacío</h5>
         <p>Agrega elementos para crear un pedido.</p>
+        <a href="{{ route('dashboard.instructor') }}" class="btn btn-primary mt-3">
+            ← Volver a elementos
+        </a>
     </div>
     @endif
 </div>

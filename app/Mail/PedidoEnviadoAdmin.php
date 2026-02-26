@@ -10,12 +10,14 @@ class PedidoEnviadoAdmin extends Mailable
 {
     use Queueable, SerializesModels;
 
+    // 👈 CAMBIO: Ahora recibe un array de pedidos
     public $pedidos;
     public $area;
 
     public function __construct($pedidos, $area)
     {
-        $this->pedidos = $pedidos;
+        // 👈 NUEVO: Asegurar que siempre es un array
+        $this->pedidos = is_array($pedidos) ? $pedidos : [$pedidos];
         $this->area = $area;
     }
 

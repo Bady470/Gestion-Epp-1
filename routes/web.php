@@ -40,7 +40,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/pedidos', [AdminPedidoController::class, 'index'])->name('admin.pedidos.index');
         Route::get('/pedidos/{id}', [AdminPedidoController::class, 'show'])->name('admin.pedidos.show');
         Route::get('/dashboard/admin', [AdminPedidoController::class, 'dashboard'])->name('dashboard.admin');
-         Route::get('/productos/area', [AdminPedidoController::class, 'productosArea'])->name('admin.productos.area');
+        Route::get('/productos/area', [AdminPedidoController::class, 'productosArea'])->name('admin.productos.area');
+        Route::get('/admin/pedidos/resumen-consolidado/{areaId}', [AdminPedidoController::class, 'resumenConsolidado']);
 
         Route::prefix('notificaciones')->group(function () {
             Route::get('/', [NotificacionController::class, 'index'])->name('notificaciones.index');
@@ -92,6 +93,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/lider/pedidos', [LiderController::class, 'index'])->name('lider.pedidos');
     Route::post('/lider/pedidos/{id}/aprobar', [LiderController::class, 'aprobar'])->name('lider.aprobar');
     Route::post('/lider/pedidos/{id}/rechazar', [LiderController::class, 'rechazar'])->name('lider.rechazar');
+   Route::get('/lider/resumen-consolidado', [LiderController::class, 'resumenConsolidado']);
+
     // rutas de solicitudes
     Route::get('/solicitudes', [SolicitudController::class, 'index'])->name('solicitudes.index');
     Route::get('/solicitudes/{id}', [SolicitudController::class, 'show'])->name('solicitudes.show');

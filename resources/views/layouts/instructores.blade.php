@@ -27,12 +27,18 @@
         min-height: 100vh;
     }
 
-    /* HEADER SENA */
+    /* 👈 CORREGIDO: HEADER SENA CON Z-INDEX CORRECTO */
     .sena-header {
         background: linear-gradient(135deg, var(--sena-blue), var(--sena-green));
         color: white;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         padding: 1rem 0;
+        position: relative;
+        z-index: 100;
+    }
+
+    .sena-header .navbar {
+        padding: 0;
     }
 
     .sena-header .navbar-brand {
@@ -49,14 +55,31 @@
         filter: brightness(0) invert(1);
     }
 
+    /* 👈 NUEVO: Dropdown menu con z-index alto */
+    .user-menu {
+        position: relative;
+        z-index: 1050;
+    }
+
     .user-menu .dropdown-toggle {
         color: white;
         font-weight: 500;
         text-decoration: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        transition: all 0.2s ease;
     }
 
     .user-menu .dropdown-toggle::after {
         display: none;
+    }
+
+    .user-menu .dropdown-toggle:hover {
+        background: rgba(255, 255, 255, 0.1);
     }
 
     .user-menu .dropdown-menu {
@@ -64,11 +87,15 @@
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         border: none;
         min-width: 200px;
+        z-index: 1050;
+        margin-top: 0.5rem;
     }
 
     .user-menu .dropdown-item {
         padding: 0.6rem 1rem;
         font-size: 0.95rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
     }
 
     .user-menu .dropdown-item:hover {
@@ -77,6 +104,31 @@
     }
 
     .user-menu .dropdown-item i {
+        width: 20px;
+    }
+
+    /* 👈 NUEVO: Botón logout sin formulario */
+    .logout-btn {
+        background: none;
+        border: none;
+        padding: 0.6rem 1rem;
+        font-size: 0.95rem;
+        color: #dc3545;
+        cursor: pointer;
+        width: 100%;
+        text-align: left;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .logout-btn:hover {
+        background-color: var(--sena-green);
+        color: white;
+    }
+
+    .logout-btn i {
         width: 20px;
     }
 
@@ -118,6 +170,25 @@
         padding: 1.2rem;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     }
+
+    /* 👈 NUEVO: Asegurar que los modales estén por encima */
+    .modal {
+        z-index: 1060 !important;
+    }
+
+    .modal-backdrop {
+        z-index: 1050 !important;
+    }
+
+    @media (max-width: 768px) {
+        .sena-header .navbar-brand {
+            font-size: 1.2rem;
+        }
+
+        .user-menu .dropdown-menu {
+            min-width: 180px;
+        }
+    }
     </style>
 </head>
 
@@ -125,7 +196,7 @@
 
     <!-- HEADER SENA -->
     <header class="sena-header">
-        <nav class="navbar navbar-expand">
+        <nav class="navbar navbar-expand-lg">
             <div class="container">
                 <!-- Logo + Título -->
                 <a class="navbar-brand" href="{{ route('dashboard.instructor') }}">
@@ -137,11 +208,11 @@
                 <div class="ms-auto">
                     <div class="dropdown user-menu">
                         <a class="dropdown-toggle d-flex align-items-center gap-2" href="#" role="button"
-                            data-bs-toggle="dropdown">
+                            id="userMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-person-circle fs-4"></i>
                             <span class="d-none d-md-inline">{{ auth()->user()->nombre_completo }}</span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuDropdown">
                             <li>
                                 <a class="dropdown-item" href="#">
                                     <i class="bi bi-person me-2"></i> Mi Perfil
@@ -151,12 +222,9 @@
                                 <hr class="dropdown-divider">
                             </li>
                             <li>
-                                <form method="POST" action="{{ route('logout') }}" class="d-inline">
-                                    @csrf
-                                    <button type="submit" class="dropdown-item text-danger">
-                                        <i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión
-                                    </button>
-                                </form>
+                                <button type="button" class="logout-btn" onclick="logout()">
+                                    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                                </button>
                             </li>
                         </ul>
                     </div>
@@ -170,8 +238,23 @@
         @yield('content')
     </main>
 
+    <!-- 👈 NUEVO: Formulario oculto para logout -->
+    <form id="logoutForm" method="POST" action="{{ route('logout') }}" style="display: none;">
+        @csrf
+    </form>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- 👈 NUEVO: Script para manejar logout -->
+    <script>
+        function logout() {
+            // Obtener el formulario oculto
+            const form = document.getElementById('logoutForm');
+            // Enviar el formulario
+            form.submit();
+        }
+    </script>
 </body>
 
 </html>

@@ -40,6 +40,68 @@
         border: 2px solid rgba(255, 255, 255, 0.3);
     }
 
+    /* 👈 NUEVO: Selector de ficha */
+    .ficha-selector-container {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+        border-left: 5px solid var(--sena-green);
+    }
+
+    .ficha-selector-container label {
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 0.75rem;
+        display: block;
+        font-size: 1rem;
+    }
+
+    .ficha-selector-container select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .ficha-selector-container select:focus {
+        outline: none;
+        border-color: var(--sena-green);
+        box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.1);
+    }
+
+    .ficha-selector-container small {
+        display: block;
+        margin-top: 0.5rem;
+        color: #666;
+        font-style: italic;
+    }
+
+    /* 👈 NUEVO: Alerta de ficha no seleccionada */
+    .alerta-ficha {
+        background: #fff3cd;
+        border: 2px solid #ffc107;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        display: none;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .alerta-ficha i {
+        font-size: 1.5rem;
+        color: #ff9800;
+    }
+
+    .alerta-ficha strong {
+        color: #333;
+    }
+
     /* Botones mejorados */
     .btn-action {
         border-radius: 12px;
@@ -469,6 +531,32 @@
         </div>
     </div>
 
+    <!-- 👈 NUEVO: Selector de ficha -->
+    <div class="ficha-selector-container">
+        <label for="ficha-selector">
+            <i class="bi bi-file-earmark"></i> Seleccionar Ficha
+        </label>
+        <select id="ficha-selector" required>
+            <option value="">-- Selecciona una ficha --</option>
+            @foreach($fichas as $ficha)
+            <option value="{{ $ficha->id }}">
+                {{ $ficha->numero }} - {{ $ficha->programa->nombre }}
+            </option>
+            @endforeach
+        </select>
+        <small>
+            <i class="bi bi-info-circle"></i> Selecciona la ficha para la cual solicitas los elementos
+        </small>
+    </div>
+
+    <!-- 👈 NUEVO: Alerta si no hay ficha seleccionada -->
+    <div id="alerta-ficha" class="alerta-ficha">
+        <i class="bi bi-exclamation-triangle"></i>
+        <div>
+            <strong>Atención:</strong> Debes seleccionar una ficha antes de agregar elementos al carrito.
+        </div>
+    </div>
+
     <!-- Acciones superiores -->
     @if ($elementos->count() > 0)
     <div class="acciones-top">
@@ -614,8 +702,22 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- SCRIPT MEJORADO CON SELECTOR DE TALLA EDITABLE -->
+<!-- SCRIPT MEJORADO CON SELECTOR DE FICHA Y TALLA EDITABLE -->
 <script>
+// 👈 NUEVA VARIABLE GLOBAL: Ficha seleccionada
+let fichaSeleccionada = null;
+
+// 👈 NUEVO: Escuchar cambios en el selector de ficha
+document.getElementById('ficha-selector').addEventListener('change', function() {
+    fichaSeleccionada = this.value;
+
+    if (fichaSeleccionada) {
+        document.getElementById('alerta-ficha').style.display = 'none';
+    } else {
+        document.getElementById('alerta-ficha').style.display = 'flex';
+    }
+});
+
 // Cambiar cantidad con botones + y -
 function changeQuantity(id, delta) {
     const input = document.getElementById(`qty-${id}`);
@@ -637,7 +739,7 @@ function mostrarToast(mensaje) {
     toast.show();
 }
 
-// 👈 NUEVA FUNCIÓN: Seleccionar talla predefinida
+// 👈 FUNCIÓN: Seleccionar talla predefinida
 function seleccionarTalla(id, talla) {
     // Actualizar input hidden
     document.getElementById(`talla-hidden-${id}`).value = talla;
@@ -661,7 +763,7 @@ function seleccionarTalla(id, talla) {
     console.log(`Talla seleccionada para producto ${id}: ${talla}`);
 }
 
-// 👈 NUEVA FUNCIÓN: Actualizar talla cuando se escribe en el input
+// 👈 FUNCIÓN: Actualizar talla cuando se escribe en el input
 document.addEventListener('DOMContentLoaded', function() {
     // Obtener todos los inputs de talla personalizada
     document.querySelectorAll('[id^="talla-"]').forEach(input => {
@@ -688,6 +790,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ✅ FUNCIÓN: Agregar producto individual
 function agregarAlCarritoAjax(id, nombre) {
+    // 👈 NUEVO: Validar que hay ficha seleccionada
+    if (!fichaSeleccionada) {
+        mostrarToast('⚠️ Debes seleccionar una ficha primero');
+        document.getElementById('alerta-ficha').style.display = 'flex';
+        return;
+    }
+
     const cantidad = parseInt(document.getElementById(`qty-${id}`).value) || 0;
 
     // 👈 OBTENER TALLA DEL INPUT HIDDEN
@@ -695,7 +804,7 @@ function agregarAlCarritoAjax(id, nombre) {
                   document.getElementById(`talla-${id}`)?.value ||
                   null;
 
-    console.log('DEBUG:', { id, nombre, cantidad, talla });
+    console.log('DEBUG:', { id, nombre, cantidad, talla, fichaSeleccionada });
 
     // Validar que la cantidad sea mayor a 0
     if (cantidad <= 0) {
@@ -726,7 +835,8 @@ function agregarAlCarritoAjax(id, nombre) {
         body: JSON.stringify({
             id: id,
             cantidad: cantidad,
-            talla: talla.trim()
+            talla: talla.trim(),
+            ficha_id: fichaSeleccionada  // 👈 ENVIAR FICHA
         })
     })
     .then(response => response.json())
@@ -746,6 +856,13 @@ function agregarAlCarritoAjax(id, nombre) {
 
 // ✅ FUNCIÓN: Agregar todo al carrito
 function agregarTodoAlCarrito() {
+    // 👈 NUEVO: Validar que hay ficha seleccionada
+    if (!fichaSeleccionada) {
+        mostrarToast('⚠️ Debes seleccionar una ficha primero');
+        document.getElementById('alerta-ficha').style.display = 'flex';
+        return;
+    }
+
     const items = [];
 
     // Recolectar todos los productos con cantidad > 0
@@ -768,7 +885,8 @@ function agregarTodoAlCarrito() {
             items.push({
                 id: id,
                 cantidad: cantidad,
-                talla: talla.trim()
+                talla: talla.trim(),
+                ficha_id: fichaSeleccionada  // 👈 ENVIAR FICHA
             });
         }
     });
