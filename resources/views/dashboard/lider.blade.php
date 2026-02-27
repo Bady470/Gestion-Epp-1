@@ -240,6 +240,29 @@
         color: white;
     }
 
+    .btn-exportar {
+        background: linear-gradient(135deg, var(--sena-green), #2d8a00);
+        color: white;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-exportar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(57, 169, 0, 0.3);
+        color: white;
+    }
+
+    .btn-exportar:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
     .alerta-vacia {
         background: linear-gradient(135deg, #e3f2fd, #bbdefb);
         border-left: 5px solid var(--sena-blue);
@@ -289,6 +312,11 @@
     }
 
     .modal-body {
+        padding: 1.5rem;
+    }
+
+    .modal-footer {
+        border-top: 2px solid #e0e0e0;
         padding: 1.5rem;
     }
 
@@ -387,6 +415,19 @@
         color: var(--sena-green);
     }
 
+    .export-info {
+        background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+        border-left: 4px solid var(--sena-green);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        color: #2e7d32;
+    }
+
+    .export-info i {
+        margin-right: 0.5rem;
+    }
+
     @media (max-width: 768px) {
         .header-section h2 {
             font-size: 1.5rem;
@@ -407,6 +448,14 @@
         .elementos-table th,
         .elementos-table td {
             padding: 0.75rem 0.5rem;
+        }
+
+        .modal-footer {
+            flex-direction: column;
+        }
+
+        .btn-exportar {
+            width: 100%;
         }
     }
 </style>
@@ -579,7 +628,7 @@
                 </form>
                 @endif
 
-                <!-- 👈 NUEVO: Botón para ver resumen consolidado -->
+                <!-- Botón para ver resumen consolidado -->
                 <button type="button" class="btn btn-accion btn-resumen" onclick="abrirResumenConsolidado()">
                     <i class="bi bi-receipt-cutoff"></i> Ver Resumen
                 </button>
@@ -609,7 +658,7 @@
     @endif
 </div>
 
-<!-- 👈 NUEVO: Modal para resumen consolidado -->
+<!-- Modal para resumen consolidado -->
 <div class="modal fade" id="modalResumenConsolidado" tabindex="-1" aria-labelledby="modalResumenLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -628,32 +677,44 @@
                     </div>
                 </div>
             </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Cerrar
+                </button>
+                <button type="button" class="btn btn-exportar" id="btnExportarExcel" onclick="exportarExcel()" style="display: none;">
+                    <i class="bi bi-download"></i> Exportar a Excel GFPI-F-186
+                </button>
+            </div>
         </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+{{-- Agregar este código a tu vista resources/views/dashboard/lider.blade.php --}}
+
+{{-- Busca la sección donde está el JavaScript y reemplaza la función abrirResumenConsolidado() --}}
+
 <script>
-    // 👈 NUEVA: Función para abrir modal con resumen consolidado
+    // Función para abrir modal con resumen consolidado
     function abrirResumenConsolidado() {
-        const areaId = {{ auth()->user()->areas_id }};
         const container = document.getElementById('resumenContainer');
+        const btnExportar = document.getElementById('btnExportarExcel');
 
         // Mostrar modal
         const modal = new bootstrap.Modal(document.getElementById('modalResumenConsolidado'));
         modal.show();
 
-        // Cargar datos
-        fetch(`/lider/resumen-consolidado`)
+        // Cargar datos - RUTA CORREGIDA
+        fetch(`{{ route('lider.resumen-consolidado') }}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     let html = `
-                        <p style="color: #666; margin-bottom: 1rem;">
+                        <div class="export-info">
                             <i class="bi bi-info-circle"></i>
                             Consolidación de <strong>${data.total_pedidos}</strong> pedido(s) del área
-                        </p>
+                        </div>
 
                         <table class="tabla-consolidada">
                             <thead>
@@ -709,6 +770,7 @@
                     `;
 
                     container.innerHTML = html;
+                    btnExportar.style.display = 'block';
                 } else {
                     container.innerHTML = `
                         <div style="text-align: center; padding: 2rem; color: #666;">
@@ -716,6 +778,7 @@
                             <h5 style="margin-top: 1rem;">No hay datos disponibles</h5>
                         </div>
                     `;
+                    btnExportar.style.display = 'none';
                 }
             })
             .catch(error => {
@@ -726,8 +789,82 @@
                         <h5 style="margin-top: 1rem;">Error al cargar el resumen</h5>
                     </div>
                 `;
+                btnExportar.style.display = 'none';
+            });
+    }
+
+    // Función para exportar a Excel - RUTA CORREGIDA
+    function exportarExcel() {
+        const btnExportar = document.getElementById('btnExportarExcel');
+        const btnAnterior = btnExportar.innerHTML;
+
+        // Mostrar estado de carga
+        btnExportar.disabled = true;
+        btnExportar.innerHTML = '<i class="bi bi-hourglass-split"></i> Generando archivo...';
+
+        // Realizar descarga - RUTA CORREGIDA
+        fetch(`{{ route('lider.exportar-gfpi-f186') }}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Error en la descarga');
+                return response.blob();
+            })
+            .then(blob => {
+                // Crear URL y descargar
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `GFPI-F-186_{{ auth()->user()->area->nombre ?? 'Área' }}_${new Date().toLocaleDateString('es-CO').replace(/\//g, '-')}.xlsx`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                // Restaurar botón
+                btnExportar.disabled = false;
+                btnExportar.innerHTML = btnAnterior;
+
+                // Mostrar mensaje de éxito
+                alert('Archivo Excel descargado correctamente');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                btnExportar.disabled = false;
+                btnExportar.innerHTML = btnAnterior;
+                alert('Error al descargar el archivo');
             });
     }
 </script>
+
+{{-- Asegúrate de que en tu modal tengas estos elementos --}}
+<div class="modal fade" id="modalResumenConsolidado" tabindex="-1" aria-labelledby="modalResumenLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalResumenLabel">
+                    <i class="bi bi-receipt-cutoff"></i> Resumen Consolidado del Área
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="resumenContainer">
+                    <div class="spinner-container">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Cerrar
+                </button>
+                <button type="button" class="btn btn-exportar" id="btnExportarExcel" onclick="exportarExcel()" style="display: none;">
+                    <i class="bi bi-download"></i> Exportar a Excel GFPI-F-186
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 @endsection
