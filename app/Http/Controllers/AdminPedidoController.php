@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Pedido;
 use App\Models\ElementoPP;
+use App\Models\Notificacion;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AdminPedidoController extends Controller
 {
@@ -139,5 +142,71 @@ class AdminPedidoController extends Controller
             'total_pedidos' => $pedidos->count(),
             'total_unidades' => array_sum(array_column($consolidado, 'cantidad_total'))
         ]);
+    }
+    public function aprobar($id)
+    {
+        $pedido = Pedido::with('usuario')->findOrFail($id);
+        $pedido->update(['estado' => 'aprobado']);
+
+        $admin = Auth::user();
+
+        // --- NOTIFICACIÓN PARA EL LÍDER DEL ÁREA ---
+        // Buscamos al líder del área del usuario que hizo el pedido
+        $lider = User::where('areas_id', $pedido->usuario->areas_id)
+                     ->where('roles_id', 3) // Según tu seeder, el líder es roles_id = 3
+                     ->first();
+
+        if ($lider) {
+            Notificacion::create([
+                'user_id' => $lider->id,
+                'tipo' => 'pedido_aprobado',
+                'titulo' => 'Pedido Aprobado',
+                'mensaje' => "El administrador ha aprobado tu pedido #{$pedido->id}.",
+                'pedido_id' => $pedido->id,
+                'usuario_accion_id' => $admin->id,
+                'leida' => false,
+                'datos_adicionales' => [
+                    'Estado' => 'APROBADO',
+                    'Pedido_ID' => "#" . $pedido->id,
+                    'Aprobado_por' => $admin->nombre_completo,
+                    'Fecha' => now()->format('d/m/Y H:i')
+                ]
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Pedido aprobado correctamente');
+    }
+    public function rechazar($id)
+    {
+        $pedido = Pedido::with('usuario')->findOrFail($id);
+        $pedido->update(['estado' => 'rechazado']);
+
+        $admin = Auth::user();
+
+        // --- NOTIFICACIÓN PARA EL LÍDER DEL ÁREA ---
+        $lider = User::where('areas_id', $pedido->usuario->areas_id)
+                     ->where('roles_id', 3)
+                     ->first();
+
+        if ($lider) {
+            Notificacion::create([
+                'user_id' => $lider->id,
+                'tipo' => 'pedido_rechazado',
+                'titulo' => 'Pedido Rechazado',
+                'mensaje' => "Tu pedido #{$pedido->id} ha sido rechazado por el administrador.",
+                'pedido_id' => $pedido->id,
+                'usuario_accion_id' => $admin->id,
+                'leida' => false,
+                'datos_adicionales' => [
+                    'Estado' => 'RECHAZADO',
+                    'Pedido_ID' => "#" . $pedido->id,
+                    'Rechazado_por' => $admin->nombre_completo,
+                    'Fecha' => now()->format('d/m/Y H:i'),
+                    'Acción' => 'Por favor, revisa los detalles del pedido.'
+                ]
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Pedido rechazado correctamente');
     }
 }
