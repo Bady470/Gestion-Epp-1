@@ -824,21 +824,22 @@ function agregarAlCarritoAjax(id, nombre) {
                      '{{ csrf_token() }}';
 
     // Enviar solicitud AJAX
-    fetch('{{ route("carrito.agregar") }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRF-TOKEN': csrfToken
-        },
-        body: JSON.stringify({
-            id: id,
-            cantidad: cantidad,
-            talla: talla.trim(),
-            ficha_id: fichaSeleccionada  // 👈 ENVIAR FICHA
-        })
+   fetch('{{ route("carrito.agregar") }}', {
+    method: 'POST',
+    credentials: 'same-origin', // 🔥 ESTO ES LO QUE FALTA
+    headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRF-TOKEN': csrfToken
+    },
+    body: JSON.stringify({
+        id: id,
+        cantidad: cantidad,
+        talla: talla.trim(),
+        ficha_id: fichaSeleccionada
     })
+})
     .then(response => response.json())
     .then(data => {
         if (data.success) {
