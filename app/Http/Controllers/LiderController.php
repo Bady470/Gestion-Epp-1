@@ -31,6 +31,72 @@ class LiderController extends Controller
     }
 
     // ... (resumenConsolidado y exportarGFPIF186 se mantienen igual)
+ // 👈 NUEVO: Obtener resumen consolidado de pedidos del área del líder
+    public function resumenConsolidado()
+    {
+        try {
+            $areaId = Auth::user()->areas_id;
+
+            // Obtener todos los pedidos del área
+            $pedidos = Pedido::with(['elementos' => function($q) use ($areaId) {
+                $q->where('areas_id', $areaId);
+            }, 'usuario'])
+            ->whereHas('usuario', function ($query) use ($areaId) {
+                $query->where('areas_id', $areaId);
+            })
+            ->get();
+
+            if ($pedidos->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No hay pedidos para tu área'
+                ], 404);
+            }
+
+            // Consolidar: agrupar por nombre de producto y talla
+            $consolidado = [];
+
+            foreach ($pedidos as $pedido) {
+                foreach ($pedido->elementos as $elemento) {
+                    $clave = $elemento->nombre . '|' . ($elemento->pivot->talla ?? 'Sin talla');
+
+                    if (!isset($consolidado[$clave])) {
+                        $consolidado[$clave] = [
+                            'nombre' => $elemento->nombre,
+                            'talla' => $elemento->pivot->talla ?? 'Sin talla especificada',
+                            'cantidad_total' => 0,
+                            'area' => $elemento->area->nombre ?? '-',
+                            'proteccion' => $elemento->filtro->parte_del_cuerpo ?? '-',
+                        ];
+                    }
+
+                    $consolidado[$clave]['cantidad_total'] += $elemento->pivot->cantidad;
+                }
+            }
+
+            // Ordenar por nombre
+            uasort($consolidado, function($a, $b) {
+                return strcmp($a['nombre'], $b['nombre']);
+            });
+
+            $totalUnidades = array_sum(array_column($consolidado, 'cantidad_total'));
+
+            return response()->json([
+                'success' => true,
+                'consolidado' => array_values($consolidado),
+                'total_pedidos' => $pedidos->count(),
+                'total_unidades' => $totalUnidades
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error en resumenConsolidado del líder: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar el resumen: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
 
     /**
      * Enviar un pedido al administrador
@@ -129,4 +195,5 @@ class LiderController extends Controller
         $pedido->update(['estado' => 'rechazado']);
         return redirect()->back()->with('success', 'Pedido rechazado correctamente');
     }
+
 }
