@@ -100,7 +100,7 @@ class LiderController extends Controller
     /**
      * 👈 NUEVO: Exportar a Excel formato GFPI-F-186 (Formato oficial SENA)
      */
-    public function exportarGFPIF186()
+     public function exportarGFPIF186()
     {
         try {
             $user = Auth::user();
@@ -144,121 +144,155 @@ class LiderController extends Controller
             $sheet = $spreadsheet->getActiveSheet();
             $sheet->setTitle('Materiales');
 
-            // Configurar ancho de columnas
-            $sheet->getColumnDimension('A')->setWidth(5);
-            $sheet->getColumnDimension('B')->setWidth(15);
-            $sheet->getColumnDimension('C')->setWidth(15);
-            $sheet->getColumnDimension('D')->setWidth(30);
-            $sheet->getColumnDimension('E')->setWidth(25);
-            $sheet->getColumnDimension('F')->setWidth(12);
-            $sheet->getColumnDimension('G')->setWidth(15);
-            $sheet->getColumnDimension('H')->setWidth(12);
-            $sheet->getColumnDimension('I')->setWidth(12);
-            $sheet->getColumnDimension('J')->setWidth(12);
-            $sheet->getColumnDimension('K')->setWidth(12);
-            $sheet->getColumnDimension('L')->setWidth(12);
+            // Configurar ancho de columnas (basado en el análisis del Excel original)
+            $sheet->getColumnDimension('A')->setWidth(1.71);
+            $sheet->getColumnDimension('B')->setWidth(2.86);
+            $sheet->getColumnDimension('C')->setWidth(8.14);
+            $sheet->getColumnDimension('D')->setWidth(26.0);
+            $sheet->getColumnDimension('E')->setWidth(38.29);
+            $sheet->getColumnDimension('F')->setWidth(61.86);
+            $sheet->getColumnDimension('G')->setWidth(46.86);
+            $sheet->getColumnDimension('H')->setWidth(35.0);
+            $sheet->getColumnDimension('I')->setWidth(42.14);
+            $sheet->getColumnDimension('J')->setWidth(1.14);
+            $sheet->getColumnDimension('K')->setWidth(23.14);
+            $sheet->getColumnDimension('L')->setWidth(13.0);
+            $sheet->getColumnDimension('M')->setWidth(13.0);
+            $sheet->getColumnDimension('N')->setWidth(13.0);
+            $sheet->getColumnDimension('O')->setWidth(4.29);
 
-            // Encabezado - Fila 1
-            $sheet->setCellValue('L1', 'Versión: 01');
-            $sheet->getStyle('L1')->getFont()->setBold(true)->setSize(10);
+            // Estilos generales para encabezados superiores
+            $headerStyle = [
+                'font' => [
+                    'bold' => true,
+                    'size' => 14,
+                    'name' => 'Arial'
+                ],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                    'wrapText' => true
+                ]
+            ];
 
-            // Fila 2
-            $sheet->setCellValue('L2', 'Código: GFPI-F-186');
-            $sheet->getStyle('L2')->getFont()->setBold(true)->setSize(10);
+            // Fila 2 - Versión
+            $sheet->mergeCells('M2:O2');
+            $sheet->setCellValue('M2', 'Versión: 01');
+            $sheet->getStyle('M2:O2')->applyFromArray($headerStyle);
 
-            // Fila 3
-            $sheet->setCellValue('B3', 'PROCEDIMIENTO DISEÑO CURRICULAR');
-            $sheet->getStyle('B3')->getFont()->setBold(true)->setSize(11);
+            // Fila 3 - Código
+            $sheet->mergeCells('M3:O3');
+            $sheet->setCellValue('M3', 'Código: GFPI-F-186');
+            $sheet->getStyle('M3:O3')->applyFromArray($headerStyle);
 
-            // Fila 4
-            $sheet->setCellValue('B4', 'FORMATO ANEXO LISTA DE MATERIALES DE FORMACIÓN REFERENTE');
-            $sheet->getStyle('B4')->getFont()->setBold(true)->setSize(11);
+            // Fila 4 - Procedimiento
+            $sheet->mergeCells('B4:O4');
+            $sheet->setCellValue('B4', 'PROCEDIMIENTO DISEÑO CURRICULAR ');
+            $sheet->getStyle('B4:O4')->applyFromArray($headerStyle);
+
+            // Fila 5 - Formato
+            $sheet->mergeCells('B5:O5');
+            $sheet->setCellValue('B5', 'FORMATO ANEXO LISTA DE MATERIALES DE FORMACIÓN REFERENTE');
+            $sheet->getStyle('B5:O5')->applyFromArray($headerStyle);
+
+            // Estilo para campos de información general (Row 6, 7, 8)
+            $infoStyle = [
+                'font' => ['bold' => true, 'size' => 11, 'name' => 'Arial'],
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FFE9ECEF'] // Color gris claro de fondo
+                ],
+                'borders' => [
+                    'allBorders' => ['borderStyle' => Border::BORDER_THIN]
+                ]
+            ];
 
             // Fila 6
-            $sheet->setCellValue('B6', 'RED DE CONOCIMIENTO - INSTITUCIONAL');
-            $sheet->setCellValue('C6', 'SENA');
-            $sheet->setCellValue('G6', 'CÓDIGO DE PROGRAMA DE FORMACIÓN');
+            $sheet->mergeCells('C6:D6');
+            $sheet->setCellValue('C6', 'RED DE CONOCIMIENTO - INSTITUCIONAL');
+            $sheet->mergeCells('E6:F6');
+            $sheet->setCellValue('E6', 'SENA');
+            $sheet->mergeCells('H6:J6');
+            $sheet->setCellValue('H6', 'CÓDIGO DE PROGRAMA DE FORMACIÓN ');
+            $sheet->mergeCells('K6:N6');
+            $sheet->setCellValue('K6', 'N/A');
 
             // Fila 7
-            $sheet->setCellValue('B7', 'NIVEL DE FORMACIÓN');
-            $sheet->setCellValue('C7', 'TÉCNICO');
-            $sheet->setCellValue('G7', 'DENOMINACIÓN PROGRAMA DE FORMACIÓN');
-            $sheet->setCellValue('I7', $pedidos->first()->ficha->programa->nombre ?? 'No asignado');
+            $sheet->mergeCells('C7:D7');
+            $sheet->setCellValue('C7', 'NIVEL DE FORMACIÓN ');
+            $sheet->mergeCells('E7:F7');
+            $sheet->setCellValue('E7', 'TÉCNICO');
+            $sheet->mergeCells('H7:J7');
+            $sheet->setCellValue('H7', 'DENOMINACIÓN PROGRAMA DE FORMACIÓN ');
+            $sheet->mergeCells('K7:N7');
+            $sheet->setCellValue('K7', $pedidos->first()->ficha->programa->nombre ?? 'No asignado');
 
             // Fila 8
-            $sheet->setCellValue('B8', 'VERSIÓN');
-            $sheet->setCellValue('C8', '1');
-            $sheet->setCellValue('G8', 'FICHA ASIGNADA');
-            $sheet->setCellValue('I8', $pedidos->first()->ficha->numero ?? 'N/A');
+            $sheet->mergeCells('C8:D8');
+            $sheet->setCellValue('C8', 'VERSIÓN ');
+            $sheet->mergeCells('E8:F8');
+            $sheet->setCellValue('E8', '1');
+            $sheet->mergeCells('H8:J8');
+            $sheet->setCellValue('H8', 'NOMBRE GESTOR DE RED');
+            $sheet->mergeCells('K8:N8');
+            $sheet->setCellValue('K8', $user->nombre_completo);
 
-            // Fila 10
-            $sheet->setCellValue('B10', 'INSTRUCTOR(ES) SOLICITANTE(S)');
-            $sheet->setCellValue('C10', $pedidos->first()->usuario->nombre_completo ?? 'No asignado');
-            $sheet->setCellValue('G10', 'LÍDER DEL ÁREA');
-            $sheet->setCellValue('I10', $user->nombre_completo);
+            $sheet->getStyle('C6:N8')->applyFromArray($infoStyle);
 
-            // Fila 11
-            $sheet->setCellValue('B11', 'FECHA DE GENERACIÓN');
-            $sheet->setCellValue('C11', now()->format('d/m/Y H:i'));
+            // Encabezados de tabla - Fila 11
+            $tableHeaders = [
+                'C' => 'ÍTEM',
+                'D' => 'CÓDIGO UNSPSC',
+                'E' => 'PRODUCTO ',
+                'F' => 'DESCRIPCION TÉCNICA REQUERIDA DEL BIEN ',
+                'G' => 'UNIDAD DE MEDIDA ',
+                'H' => 'CANTIDAD REQUERIDA PARA FORMAR 30 APRENDICES DURANTE LA FORMACIÓN',
+                'I' => 'OBSERVACIONES',
+                'K' => 'CONSUMO',
+                'L' => 'DEVOLUTIVO',
+                'M' => 'SOFTWARE',
+                'N' => 'EPP'
+            ];
 
-            // Encabezados de tabla - Fila 13
-            $headers = ['ÍTEM', 'CÓDIGO UNSPSC', 'PRODUCTO', 'DESCRIPCIÓN TÉCNICA REQUERIDA DEL BIEN', 'UNIDAD DE MEDIDA', 'CANTIDAD REQUERIDA PARA FORMAR 30 APRENDICES DURANTE LA FORMACIÓN', 'OBSERVACIONES', 'CONSUMO', 'DEVOLUTIVO', 'SOFTWARE', 'EPP'];
-
-            $col = 1;
-            foreach ($headers as $header) {
-                $cell = $sheet->getCellByColumnAndRow($col, 13);
-                $cell->setValue($header);
-                $cell->getStyle()->getFont()->setBold(true)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FFFFFFFF'));
-                $cell->getStyle()->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('FF39A900');
-                $cell->getStyle()->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER)->setWrapText(true);
-                $cell->getStyle()->applyFromArray([
-                    'borders' => [
-                        'allBorders' => [
-                            'borderStyle' => Border::BORDER_THIN,
-                        ]
-                    ]
-                ]);
-                $col++;
+            foreach ($tableHeaders as $col => $text) {
+                $sheet->setCellValue($col . '11', $text);
+                $style = $sheet->getStyle($col . '11');
+                $style->getFont()->setBold(true)->setSize(10)->setName('Arial')->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FFFFFFFF'));
+                $style->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('FF39A900');
+                $style->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER)->setWrapText(true);
+                $style->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
             }
 
-            // Datos - Filas 14 en adelante
-            $row = 14;
+            // Datos - Fila 13 en adelante
+            $row = 13;
             $numero = 1;
 
             foreach ($consolidado as $item) {
-                $sheet->setCellValue('A' . $row, $numero);
-                $sheet->setCellValue('B' . $row, ''); // CÓDIGO UNSPSC (vacío)
-                $sheet->setCellValue('C' . $row, $item['nombre']);
-                $sheet->setCellValue('D' . $row, $item['descripcion']);
-                $sheet->setCellValue('E' . $row, 'Unidad');
-                $sheet->setCellValue('F' . $row, $item['cantidad_total']);
-                $sheet->setCellValue('G' . $row, 'Talla: ' . $item['talla']);
-                $sheet->setCellValue('H' . $row, ''); // CONSUMO
-                $sheet->setCellValue('I' . $row, ''); // DEVOLUTIVO
-                $sheet->setCellValue('J' . $row, ''); // SOFTWARE
-                $sheet->setCellValue('K' . $row, 'X'); // EPP
+                $sheet->setCellValue('C' . $row, $numero);
+                $sheet->setCellValue('D' . $row, ''); // CÓDIGO UNSPSC
+                $sheet->setCellValue('E' . $row, $item['nombre']);
+                $sheet->setCellValue('F' . $row, $item['descripcion']);
+                $sheet->setCellValue('G' . $row, 'Unidad');
+                $sheet->setCellValue('H' . $row, $item['cantidad_total']);
+                $sheet->setCellValue('I' . $row, 'Talla: ' . $item['talla']);
+                $sheet->setCellValue('K' . $row, ''); // CONSUMO
+                $sheet->setCellValue('L' . $row, ''); // DEVOLUTIVO
+                $sheet->setCellValue('M' . $row, ''); // SOFTWARE
+                $sheet->setCellValue('N' . $row, 'X'); // EPP
 
-                // Aplicar estilos a la fila
-                for ($col = 1; $col <= 11; $col++) {
-                    $cell = $sheet->getCellByColumnAndRow($col, $row);
-                    $cell->getStyle()->applyFromArray([
-                        'borders' => [
-                            'allBorders' => [
-                                'borderStyle' => Border::BORDER_THIN,
-                            ]
-                        ],
-                        'alignment' => [
-                            'horizontal' => Alignment::HORIZONTAL_LEFT,
-                            'vertical' => Alignment::VERTICAL_CENTER,
-                            'wrapText' => true
-                        ]
-                    ]);
+                // Aplicar estilos a la fila de datos
+                $dataCols = ['C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N'];
+                foreach ($dataCols as $col) {
+                    $cellStyle = $sheet->getStyle($col . $row);
+                    $cellStyle->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+                    $cellStyle->getAlignment()->setVertical(Alignment::VERTICAL_CENTER)->setWrapText(true);
+
+                    if (in_array($col, ['C', 'H', 'K', 'L', 'M', 'N'])) {
+                        $cellStyle->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                    } else {
+                        $cellStyle->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+                    }
                 }
-
-                // Centrar números
-                $sheet->getCellByColumnAndRow(1, $row)->getStyle()->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-                $sheet->getCellByColumnAndRow(6, $row)->getStyle()->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-                $sheet->getCellByColumnAndRow(11, $row)->getStyle()->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
                 $numero++;
                 $row++;
@@ -286,6 +320,7 @@ class LiderController extends Controller
             return back()->with('error', 'No fue posible generar el archivo. Por favor, intenta nuevamente.');
         }
     }
+
 
     /**
      * Enviar un pedido al administrador
