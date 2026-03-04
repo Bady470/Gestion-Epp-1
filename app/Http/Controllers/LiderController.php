@@ -98,8 +98,7 @@ class LiderController extends Controller
     }
 
     /**
-     * 👈 NUEVO: Exportar a Excel formato GFPI-F-186
-     * Genera un archivo Excel con el resumen consolidado de pedidos
+     * 👈 NUEVO: Exportar a Excel formato GFPI-F-186 (Formato oficial SENA)
      */
     public function exportarGFPIF186()
     {
@@ -143,131 +142,132 @@ class LiderController extends Controller
             // Crear spreadsheet
             $spreadsheet = new Spreadsheet();
             $sheet = $spreadsheet->getActiveSheet();
-            $sheet->setTitle('GFPI-F-186');
+            $sheet->setTitle('Materiales');
 
-            // Estilos (simplificados)
+            // Configurar ancho de columnas
+            $sheet->getColumnDimension('A')->setWidth(5);
+            $sheet->getColumnDimension('B')->setWidth(15);
+            $sheet->getColumnDimension('C')->setWidth(15);
+            $sheet->getColumnDimension('D')->setWidth(30);
+            $sheet->getColumnDimension('E')->setWidth(25);
+            $sheet->getColumnDimension('F')->setWidth(12);
+            $sheet->getColumnDimension('G')->setWidth(15);
+            $sheet->getColumnDimension('H')->setWidth(12);
+            $sheet->getColumnDimension('I')->setWidth(12);
+            $sheet->getColumnDimension('J')->setWidth(12);
+            $sheet->getColumnDimension('K')->setWidth(12);
+            $sheet->getColumnDimension('L')->setWidth(12);
 
-            // Encabezado del documento
-            $sheet->setCellValue('A1', 'FORMATO GFPI-F-186');
-            $sheet->mergeCells('A1:E1');
-            $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
-            $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            // Encabezado - Fila 1
+            $sheet->setCellValue('L1', 'Versión: 01');
+            $sheet->getStyle('L1')->getFont()->setBold(true)->setSize(10);
 
-            $sheet->setCellValue('A2', 'SOLICITUD DE EQUIPOS DE PROTECCIÓN PERSONAL (EPP)');
-            $sheet->mergeCells('A2:E2');
-            $sheet->getStyle('A2')->getFont()->setBold(true)->setSize(12);
-            $sheet->getStyle('A2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            // Fila 2
+            $sheet->setCellValue('L2', 'Código: GFPI-F-186');
+            $sheet->getStyle('L2')->getFont()->setBold(true)->setSize(10);
 
-            // Información del área
-            $sheet->setCellValue('A4', 'Área:');
-            $sheet->setCellValue('B4', $user->area->nombre ?? 'No asignada');
-            $sheet->setCellValue('D4', 'Fecha:');
-            $sheet->setCellValue('E4', now()->format('d/m/Y'));
+            // Fila 3
+            $sheet->setCellValue('B3', 'PROCEDIMIENTO DISEÑO CURRICULAR');
+            $sheet->getStyle('B3')->getFont()->setBold(true)->setSize(11);
 
-            $sheet->setCellValue('A5', 'Líder:');
-            $sheet->setCellValue('B5', $user->nombre_completo);
-            $sheet->setCellValue('D5', 'Total Pedidos:');
-            $sheet->setCellValue('E5', $pedidos->count());
+            // Fila 4
+            $sheet->setCellValue('B4', 'FORMATO ANEXO LISTA DE MATERIALES DE FORMACIÓN REFERENTE');
+            $sheet->getStyle('B4')->getFont()->setBold(true)->setSize(11);
 
-            // Encabezados de tabla
-            $row = 7;
-            $headers = ['Nº', 'Producto', 'Talla', 'Cantidad', 'Protección'];
+            // Fila 6
+            $sheet->setCellValue('B6', 'RED DE CONOCIMIENTO - INSTITUCIONAL');
+            $sheet->setCellValue('C6', 'SENA');
+            $sheet->setCellValue('G6', 'CÓDIGO DE PROGRAMA DE FORMACIÓN');
 
-            foreach ($headers as $col => $header) {
-                $cell = $sheet->getCellByColumnAndRow($col + 1, $row);
+            // Fila 7
+            $sheet->setCellValue('B7', 'NIVEL DE FORMACIÓN');
+            $sheet->setCellValue('C7', 'TÉCNICO');
+            $sheet->setCellValue('G7', 'DENOMINACIÓN PROGRAMA DE FORMACIÓN');
+            $sheet->setCellValue('I7', $pedidos->first()->ficha->programa->nombre ?? 'No asignado');
+
+            // Fila 8
+            $sheet->setCellValue('B8', 'VERSIÓN');
+            $sheet->setCellValue('C8', '1');
+            $sheet->setCellValue('G8', 'FICHA ASIGNADA');
+            $sheet->setCellValue('I8', $pedidos->first()->ficha->numero ?? 'N/A');
+
+            // Fila 10
+            $sheet->setCellValue('B10', 'INSTRUCTOR(ES) SOLICITANTE(S)');
+            $sheet->setCellValue('C10', $pedidos->first()->usuario->nombre_completo ?? 'No asignado');
+            $sheet->setCellValue('G10', 'LÍDER DEL ÁREA');
+            $sheet->setCellValue('I10', $user->nombre_completo);
+
+            // Fila 11
+            $sheet->setCellValue('B11', 'FECHA DE GENERACIÓN');
+            $sheet->setCellValue('C11', now()->format('d/m/Y H:i'));
+
+            // Encabezados de tabla - Fila 13
+            $headers = ['ÍTEM', 'CÓDIGO UNSPSC', 'PRODUCTO', 'DESCRIPCIÓN TÉCNICA REQUERIDA DEL BIEN', 'UNIDAD DE MEDIDA', 'CANTIDAD REQUERIDA PARA FORMAR 30 APRENDICES DURANTE LA FORMACIÓN', 'OBSERVACIONES', 'CONSUMO', 'DEVOLUTIVO', 'SOFTWARE', 'EPP'];
+
+            $col = 1;
+            foreach ($headers as $header) {
+                $cell = $sheet->getCellByColumnAndRow($col, 13);
                 $cell->setValue($header);
+                $cell->getStyle()->getFont()->setBold(true)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FFFFFFFF'));
+                $cell->getStyle()->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('FF39A900');
+                $cell->getStyle()->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER)->setWrapText(true);
+                $cell->getStyle()->applyFromArray([
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => Border::BORDER_THIN,
+                        ]
+                    ]
+                ]);
+                $col++;
             }
 
-            $headerRange = 'A' . $row . ':E' . $row;
-            $sheet->getStyle($headerRange)->applyFromArray([
-                'font' => [
-                    'bold' => true,
-                    'color' => ['rgb' => 'FFFFFF'],
-                    'size' => 12
-                ],
-                'fill' => [
-                    'fillType' => Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => '39A900']
-                ],
-                'alignment' => [
-                    'horizontal' => Alignment::HORIZONTAL_CENTER,
-                    'vertical' => Alignment::VERTICAL_CENTER
-                ],
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                    ]
-                ]
-            ]);
-
-            // Datos consolidados
-            $row = 8;
+            // Datos - Filas 14 en adelante
+            $row = 14;
             $numero = 1;
-            $totalCantidad = 0;
 
             foreach ($consolidado as $item) {
                 $sheet->setCellValue('A' . $row, $numero);
-                $sheet->setCellValue('B' . $row, $item['nombre']);
-                $sheet->setCellValue('C' . $row, $item['talla']);
-                $sheet->setCellValue('D' . $row, $item['cantidad_total']);
-                $sheet->setCellValue('E' . $row, $item['proteccion']);
+                $sheet->setCellValue('B' . $row, ''); // CÓDIGO UNSPSC (vacío)
+                $sheet->setCellValue('C' . $row, $item['nombre']);
+                $sheet->setCellValue('D' . $row, $item['descripcion']);
+                $sheet->setCellValue('E' . $row, 'Unidad');
+                $sheet->setCellValue('F' . $row, $item['cantidad_total']);
+                $sheet->setCellValue('G' . $row, 'Talla: ' . $item['talla']);
+                $sheet->setCellValue('H' . $row, ''); // CONSUMO
+                $sheet->setCellValue('I' . $row, ''); // DEVOLUTIVO
+                $sheet->setCellValue('J' . $row, ''); // SOFTWARE
+                $sheet->setCellValue('K' . $row, 'X'); // EPP
 
-                // Aplicar bordes a toda la fila
-                $dataRange = 'A' . $row . ':E' . $row;
-                $sheet->getStyle($dataRange)->applyFromArray([
-                    'borders' => [
-                        'allBorders' => [
-                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                // Aplicar estilos a la fila
+                for ($col = 1; $col <= 11; $col++) {
+                    $cell = $sheet->getCellByColumnAndRow($col, $row);
+                    $cell->getStyle()->applyFromArray([
+                        'borders' => [
+                            'allBorders' => [
+                                'borderStyle' => Border::BORDER_THIN,
+                            ]
+                        ],
+                        'alignment' => [
+                            'horizontal' => Alignment::HORIZONTAL_LEFT,
+                            'vertical' => Alignment::VERTICAL_CENTER,
+                            'wrapText' => true
                         ]
-                    ],
-                    'alignment' => [
-                        'horizontal' => Alignment::HORIZONTAL_CENTER,
-                        'vertical' => Alignment::VERTICAL_CENTER
-                    ]
-                ]);
+                    ]);
+                }
 
-                $totalCantidad += $item['cantidad_total'];
+                // Centrar números
+                $sheet->getCellByColumnAndRow(1, $row)->getStyle()->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                $sheet->getCellByColumnAndRow(6, $row)->getStyle()->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                $sheet->getCellByColumnAndRow(11, $row)->getStyle()->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
                 $numero++;
                 $row++;
             }
 
-            // Fila de totales
-            $row++;
-            $sheet->setCellValue('B' . $row, 'TOTAL');
-            $sheet->setCellValue('D' . $row, $totalCantidad);
-
-            $totalRange = 'A' . $row . ':E' . $row;
-            $sheet->getStyle($totalRange)->applyFromArray([
-                'font' => [
-                    'bold' => true,
-                    'color' => ['rgb' => 'FFFFFF'],
-                    'size' => 12
-                ],
-                'fill' => [
-                    'fillType' => Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => '39A900']
-                ],
-                'alignment' => [
-                    'horizontal' => Alignment::HORIZONTAL_CENTER,
-                    'vertical' => Alignment::VERTICAL_CENTER
-                ],
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                    ]
-                ]
-            ]);
-
-            // Ajustar ancho de columnas
-            $sheet->getColumnDimension('A')->setWidth(8);
-            $sheet->getColumnDimension('B')->setWidth(30);
-            $sheet->getColumnDimension('C')->setWidth(12);
-            $sheet->getColumnDimension('D')->setWidth(12);
-            $sheet->getColumnDimension('E')->setWidth(20);
-
             // Generar archivo
             $writer = new Xlsx($spreadsheet);
-            $filename = 'GFPI-F-186_' . $user->area->nombre . '_' . now()->format('d-m-Y_H-i-s') . '.xlsx';
+            $areaName = $user->area->nombre ?? 'Area';
+            $filename = 'GFPI-F-186_' . str_replace(' ', '_', $areaName) . '_' . now()->format('d-m-Y') . '.xlsx';
 
             header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             header('Content-Disposition: attachment; filename="' . $filename . '"');
