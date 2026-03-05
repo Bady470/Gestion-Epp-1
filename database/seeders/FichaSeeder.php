@@ -2,47 +2,35 @@
 
 namespace Database\Seeders;
 
-use App\Models\Ficha;
 use Illuminate\Database\Seeder;
+use App\Models\Ficha;
+use Illuminate\Support\Facades\DB;
 
 class FichaSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
-    public function run(): void
+    public function run()
     {
-        // Asegúrate de que existan programas en la tabla 'programas'
-        // Si no, crea algunos o usa IDs existentes
+        $csvFile = base_path("database/csv/programas_fichas_areas.csv");
+        $data = array_map("str_getcsv", file($csvFile));
+        $header = array_shift($data); // Remove header row
 
-        Ficha::create([
-            'numero' => '2588110',
-            'programas_id' => 1, // Asegúrate de que exista este programa
-        ]);
+        foreach ($data as $row) {
+            if (count($row) < 4) continue; // Skip malformed rows
 
-        Ficha::create([
-            'numero' => '2588111',
-            'programas_id' => 2,
-        ]);
+            $rowData = array_combine($header, $row);
 
-        Ficha::create([
-            'numero' => '2588112',
-            'programas_id' => 3,
-        ]);
+            $programName = trim($rowData["NOMBRE_PROGRAMA_FORMACION"]);
+            $fichaNumero = trim($rowData["FICHA"]);
 
-        Ficha::create([
-            'numero' => '2588113',
-            'programas_id' => 4,
-        ]);
+            $programa = DB::table("programas")->where("nombre", $programName)->first();
+            $programaId = $programa ? $programa->id : null;
 
-        Ficha::create([
-            'numero' => '2588114',
-            'programas_id' => 5,
-        ]);
-
-        Ficha::create([
-            'numero' => '2588115',
-            'programas_id' => 6,
-        ]);
+            if ($programaId) {
+                Ficha::create([
+                    "numero" => $fichaNumero,
+                    "programas_id" => $programaId,
+                ]);
+            }
+        }
     }
 }

@@ -3,51 +3,43 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Programa;
-use App\Models\Area;
+use Illuminate\Support\Facades\DB;
 
 class ProgramaSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
-    public function run(): void
+    public function run()
     {
+        $csvFile = base_path("database/csv/programas_fichas_areas.csv");
+        $data = array_map("str_getcsv", file($csvFile));
+        $header = array_shift($data); // Remove header row
 
-        $programas = [
-            [
-                'nombre' => 'Análisis y Desarrollo de Software',
-                'areas_id' => 1,
-            ],
-            [
-                'nombre' => 'Técnico en Programación',
-                'areas_id' => 1,
-            ],
-            [
-                'nombre' => 'Desarrollo de Aplicaciones Móviles',
-                'areas_id' => 1 ,
-            ],
-            [
-                'nombre' => 'Auxiliar en Cuidado de Adulto Mayor',
-                'areas_id' => 2,
-            ],
-            [
-                'nombre' => 'Técnico en Salud Oral',
-                'areas_id' => 2 ,
-            ],
-            [
-                'nombre' => 'Contabilidad y Finanzas',
-                'areas_id' => 3,
-            ],
-            [
-                'nombre' => 'Gestión Administrativa',
-                'areas_id' => 3,
-            ]
-            
-        ];
+        $processedPrograms = [];
 
-        foreach ($programas as $item) {
-            Programa::create($item);
+        foreach ($data as $row) {
+            if (count($row) < 4) continue; // Skip malformed rows
+
+            $rowData = array_combine($header, $row);
+
+            $areaName = trim($rowData["AREA"]);
+            $programName = trim($rowData["NOMBRE_PROGRAMA_FORMACION"]);
+            $nivel = trim($rowData["NIVEL"]);
+
+            // Default to "SIN ÁREA DEFINIDA" if area not found or empty
+            if (empty($areaName)) {
+                $areaName = "SIN ÁREA DEFINIDA";
+            }
+
+            $area = DB::table("areas")->where("nombre", $areaName)->first();
+            $areaId = $area ? $area->id : null;
+
+            if ($areaId && !isset($processedPrograms[$programName])) {
+                DB::table("programas")->insertOrIgnore([
+                    "nombre" => $programName,
+                    "areas_id" => $areaId,
+                    "nivel" => $nivel,
+                ]);
+                $processedPrograms[$programName] = true;
+            }
         }
     }
 }

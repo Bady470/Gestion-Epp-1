@@ -13,8 +13,9 @@ return new class extends Migration
 {
     Schema::create('programas', function (Blueprint $table) {
         $table->id();
-        $table->string('nombre', 45);
+        $table->string('nombre', 255);
         $table->unsignedBigInteger('areas_id')->nullable();
+        $table->string('nivel',45);
         $table->timestamps();
 
         $table->foreign('areas_id')->references('id')->on('areas')->onDelete('set null');
