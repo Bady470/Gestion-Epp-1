@@ -34,7 +34,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard/admin', function () {
         return view('dashboard.admin');
-    })->name('dashboard.admin');
+    })->name('dashboard.index');
 
     Route::prefix('admin')->group(function () {
         Route::get('/pedidos', [AdminPedidoController::class, 'index'])->name('admin.pedidos.index');

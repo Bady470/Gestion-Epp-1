@@ -27,6 +27,7 @@ class AuthController extends Controller
 
     if (Auth::attempt($credentials, $request->filled('remember'))) {
         $request->session()->regenerate();
+        
 
         // Obtenemos el rol del usuario autenticado
         $user = Auth::user();

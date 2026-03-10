@@ -13,6 +13,7 @@ class Programa extends Model
 
     protected $fillable = [
         'nombre',
+        'nivel',
         'areas_id',
     ];
 

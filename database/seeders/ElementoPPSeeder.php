@@ -33,7 +33,7 @@ class ElementoPPSeeder extends Seeder
             [
                 'nombre' => 'Casco de Seguridad Tipo I Industrial - Minería',
                 'descripcion' => 'Casco de Seguridad Tipo I Industrial - Minería para protección de cabeza.',
-                'img_url' => 'img/epp_casco_comercioyservicios.png',
+                'img_url' => 'img/epp_casco_comercio.png',
                 'cantidad' => 100,
                 'talla' => 'UNICA',
                 'areas_id' => Area::where('nombre', 'COMERCIO Y SERVICIOS')->first()?->id,
@@ -78,7 +78,7 @@ class ElementoPPSeeder extends Seeder
             [
                 'nombre' => 'Lentes de Seguridad (Claro)',
                 'descripcion' => 'Lentes de Seguridad (Claro) para protección de ojos.',
-                'img_url' => 'img/epp_lentes_comercioyservicios.png',
+                'img_url' => 'img/epp_lentes_comercio.png',
                 'cantidad' => 100,
                 'talla' => 'UNICA',
                 'areas_id' => Area::where('nombre', 'COMERCIO Y SERVICIOS')->first()?->id,
@@ -150,7 +150,7 @@ class ElementoPPSeeder extends Seeder
             [
                 'nombre' => 'Tapabocas desechable',
                 'descripcion' => 'Tapabocas desechable para protección de sistema respiratorio.',
-                'img_url' => 'img/epp_tapabocas_comercioyservicios.png',
+                'img_url' => 'img/epp_tapabocas_comercio.png',
                 'cantidad' => 100,
                 'talla' => 'UNICA',
                 'areas_id' => Area::where('nombre', 'COMERCIO Y SERVICIOS')->first()?->id,
@@ -213,7 +213,7 @@ class ElementoPPSeeder extends Seeder
             [
                 'nombre' => 'Bota de seguridad tipo ingeniero, dieléctrica con puntera de seguridad.',
                 'descripcion' => 'Bota de seguridad tipo ingeniero, dieléctrica con puntera de seguridad. para protección de pies y piernas.',
-                'img_url' => 'img/epp_bota_comercioyservicios.png',
+                'img_url' => 'img/epp_bota_comercio.png',
                 'cantidad' => 100,
                 'talla' => 'UNICA',
                 'areas_id' => Area::where('nombre', 'COMERCIO Y SERVICIOS')->first()?->id,
