@@ -2,166 +2,340 @@
 @section('title', 'Gestión de Programas - SENA')
 
 @section('content')
-<div class="container mt-5">
-    <!-- TÍTULO + BOTÓN NUEVO -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="page-title"
-            style="color: #39A900; border-bottom: 3px solid #39A900; padding-bottom: 6px; font-size: 1.75rem;">
-            Gestión de Programas
-        </h2>
-        <a href="{{ route('programas.create') }}"
-            class="btn btn-success shadow-sm d-flex align-items-center gap-2 px-4">
+<style>
+    :root {
+        --sena-green: #39A900;
+        --sena-blue: #406479;
+        --sena-light: #f8f9fa;
+    }
+
+    /* Fondo sutil */
+    body {
+        background: linear-gradient(135deg, #f9f9fb 0%, #eef0f3 100%);
+        background-attachment: fixed;
+    }
+
+    /* Header Section */
+    .header-section {
+        background: linear-gradient(135deg, var(--sena-blue), var(--sena-green));
+        color: white;
+        padding: 2rem;
+        border-radius: 16px;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 25px rgba(57, 169, 0, 0.15);
+    }
+
+    .header-section h2 {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 800;
+        margin: 0;
+        font-size: 1.8rem;
+    }
+
+    /* Card Principal */
+    .card-main {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        background: white;
+    }
+
+    .card-header-custom {
+        background: #f8fafc;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #edf2f7;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .card-header-title {
+        font-weight: 700;
+        color: var(--sena-blue);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Tabla Responsiva */
+    .table-container {
+        padding: 0;
+    }
+
+    .table thead {
+        background: #f1f5f9;
+    }
+
+    .table thead th {
+        border: none;
+        font-weight: 700;
+        padding: 1.25rem 1rem;
+        color: var(--sena-blue);
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+    }
+
+    .table tbody td {
+        padding: 1.25rem 1rem;
+        vertical-align: middle;
+        border-color: #f1f5f9;
+        color: #4a5568;
+    }
+
+    .table-row-hover:hover {
+        background-color: rgba(57, 169, 0, 0.04) !important;
+    }
+
+    /* Botones de Acción */
+    .btn-action {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        border: none;
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-edit { background-color: var(--sena-blue); }
+    .btn-delete { background-color: #e53e3e; }
+
+    .btn-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        filter: brightness(1.1);
+        color: white;
+    }
+
+    /* Paginación */
+    .pagination-container {
+        padding: 1.5rem;
+        background: #f8fafc;
+        border-top: 1px solid #edf2f7;
+    }
+
+    /* Botón Volver */
+    .btn-volver-top {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, var(--sena-blue), var(--sena-green));
+        color: white;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(57, 169, 0, 0.2);
+    }
+
+    .btn-volver-top:hover {
+        transform: translateX(-5px);
+        box-shadow: 0 6px 16px rgba(57, 169, 0, 0.3);
+        color: white;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 767.98px) {
+        .header-section {
+            padding: 1.5rem;
+            text-align: center;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .header-section .d-flex {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .btn-nuevo {
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* Table to Cards on Mobile */
+        .table-responsive {
+            border: none;
+        }
+
+        .table thead {
+            display: none;
+        }
+
+        .table, .table tbody, .table tr, .table td {
+            display: block;
+            width: 100%;
+        }
+
+        .table tr {
+            background: white;
+            margin-bottom: 1rem;
+            border-radius: 16px;
+            padding: 1rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid #edf2f7;
+        }
+
+        .table td {
+            text-align: right;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table td:last-child {
+            border-bottom: none;
+            padding-top: 1rem;
+            justify-content: center;
+        }
+
+        .table td::before {
+            content: attr(data-label);
+            font-weight: 700;
+            color: var(--sena-blue);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            text-align: left;
+        }
+
+        .btn-action-group {
+            width: 100%;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn-action {
+            flex: 1;
+            height: 48px;
+            border-radius: 12px;
+        }
+    }
+</style>
+
+<div class="container py-4">
+    <!-- Botón de Volver -->
+    <a href="javascript:history.back()" class="btn-volver-top mb-3" title="Volver atrás">
+        <i class="bi bi-arrow-left"></i> Volver
+    </a>
+
+    <!-- Header -->
+    <div class="header-section d-flex justify-content-between align-items-center">
+        <div>
+            <h2><i class="bi bi-gear-fill me-2"></i> Gestión de Programas</h2>
+            <p class="mb-0 opacity-90">Administra los programas académicos del centro</p>
+        </div>
+        <a href="{{ route('programas.create') }}" class="btn btn-light btn-nuevo shadow-sm d-flex align-items-center gap-2 px-4 py-2 rounded-pill fw-bold text-success">
             <i class="bi bi-plus-circle-fill"></i>
-            <span class="d-none d-sm-inline">Nuevo</span>
+            <span>Nuevo Programa</span>
         </a>
     </div>
 
-    <!-- MENSAJE DE ÉXITO -->
+    <!-- Mensaje de Éxito -->
     @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-3" role="alert">
-        <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+    <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-4 border-0 mb-4" role="alert">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-check-circle-fill fs-4 me-3"></i>
+            <div>{{ session('success') }}</div>
+        </div>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     @endif
 
-    <!-- TARJETA PRINCIPAL -->
-    <div class="card border-0 shadow" style="border-radius: 16px; overflow: hidden;">
-        <div class="card-header text-white fw-bold" style="background: linear-gradient(135deg, #406479, #39A900);">
-            <i class="bi bi-book me-2"></i> Lista de Programas
+    <!-- Card Principal -->
+    <div class="card-main">
+        <div class="card-header-custom">
+            <h5 class="card-header-title">
+                <i class="bi bi-list-ul"></i> Lista de Programas
+            </h5>
+            <span class="badge bg-soft-primary text-primary rounded-pill px-3 py-2" style="background: rgba(64, 100, 121, 0.1);">
+                {{ $programas->total() }} Registrados
+            </span>
         </div>
 
-        <div class="card-body p-0">
+        <div class="table-container">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" style="font-size: 0.95rem;">
-                    <thead style="background-color: #406479; color: white;">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
                         <tr>
-                            <th class="text-center px-3 py-3">ID</th>
-                            <th class="px-3 py-3">Nombre del Programa</th>
-                            <th class="px-3 py-3">Área</th>
-                            <th class="text-center px-3 py-3">Acciones</th>
+                            <th class="text-center">ID</th>
+                            <th>Nombre del Programa</th>
+                            <th>Área Asignada</th>
+                            <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
-                    @forelse($programas as $programa)
-                    <tr class="table-row-hover" style="transition: all 0.2s;">
-                        <!-- ID -->
-                        <td class="text-center fw-bold px-3 py-3">{{ $programa->id }}</td>
+                    <tbody>
+                        @forelse($programas as $programa)
+                        <tr class="table-row-hover">
+                            <td data-label="ID" class="text-center fw-bold text-primary">#{{ $programa->id }}</td>
 
-                        <!-- NOMBRE -->
-                        <td class="fw-semibold px-3 py-3" style="max-width: 300px;">
-                            {{ $programa->nombre }}
-                        </td>
+                            <td data-label="Programa" class="fw-semibold">
+                                {{ $programa->nombre }}
+                            </td>
 
-                        <!-- ÁREA -->
-                        <td class="px-3 py-3 text-muted">
-                            {{ $programa->area?->nombre ?? '<em class="text-secondary">Sin área asignada</em>' }}
-                        </td>
+                            <td data-label="Área">
+                                @if($programa->area)
+                                    <span class="badge rounded-pill px-3 py-2" style="background: rgba(57, 169, 0, 0.1); color: var(--sena-green);">
+                                        <i class="bi bi-tag-fill me-1"></i> {{ $programa->area->nombre }}
+                                    </span>
+                                @else
+                                    <span class="text-muted small italic">Sin área asignada</span>
+                                @endif
+                            </td>
 
-                        <!-- ACCIONES: BOTONES ÓPTIMOS Y SEPARADOS -->
-                        <td class="text-center px-3 py-3">
-                            <div class="d-flex justify-content-center gap-2">
-                                <!-- EDITAR - AZUL SENA -->
-                                <a href="{{ route('programas.edit', $programa) }}"
-                                    class="btn btn-primary d-flex align-items-center justify-content-center shadow-sm"
-                                    style="background-color: #406479; border-color: #406479; width: 44px; height: 44px; border-radius: 12px;"
-                                    title="Editar programa">
-                                    <i class="bi bi-pencil-square text-white"></i>
-                                </a>
+                            <td class="text-center">
+                                <div class="btn-action-group d-flex justify-content-center gap-2">
+                                    <a href="{{ route('programas.edit', $programa) }}"
+                                       class="btn-action btn-edit"
+                                       title="Editar programa">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </a>
 
-                                <!-- ELIMINAR -->
-                                <form action="{{ route('programas.destroy', $programa) }}" method="POST"
-                                    class="d-inline" onsubmit="return confirm('¿Eliminar este programa?')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit"
-                                        class="btn btn-danger d-flex align-items-center justify-content-center shadow-sm"
-                                        style="width: 44px; height: 44px; border-radius: 12px;"
-                                        title="Eliminar programa">
-                                        <i class="bi bi-trash-fill text-white"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="4" class="text-center py-5 text-muted">
-                            <i class="bi bi-inbox display-3 d-block mb-3"></i>
-                            <h6>No hay programas registrados</h6>
-                            <a href="{{ route('programas.create') }}" class="btn btn-success btn-sm mt-2">
-                                <i class="bi bi-plus"></i> Crear primero
-                            </a>
-                        </td>
-                    </tr>
-                    @endforelse
+                                    <form action="{{ route('programas.destroy', $programa) }}" method="POST"
+                                          onsubmit="return confirm('¿Estás seguro de eliminar este programa?')">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="btn-action btn-delete" title="Eliminar programa">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="4" class="text-center py-5">
+                                <div class="py-4">
+                                    <i class="bi bi-inbox display-1 text-muted opacity-25"></i>
+                                    <h5 class="mt-3 fw-bold text-muted">No hay programas registrados</h5>
+                                    <p class="text-muted">Comienza creando el primer programa académico.</p>
+                                    <a href="{{ route('programas.create') }}" class="btn btn-success rounded-pill px-4 mt-2">
+                                        <i class="bi bi-plus-lg me-1"></i> Crear Programa
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- PAGINACIÓN -->
-        <div class="card-footer bg-light border-0 py-3">
-            <div class="d-flex justify-content-center">
-                {{ $programas->links('pagination::bootstrap-5') }}
-            </div>
+        <!-- Paginación -->
+        @if($programas->hasPages())
+        <div class="pagination-container d-flex justify-content-center">
+            {{ $programas->links('pagination::bootstrap-5') }}
         </div>
+        @endif
     </div>
 </div>
-
-<style>
-/* FONDO SUTIL */
-body {
-    background: linear-gradient(135deg, #f9f9fb 0%, #eef0f3 100%);
-    background-attachment: fixed;
-}
-
-/* HOVER SUAVE */
-.table-row-hover:hover {
-    background-color: rgba(57, 169, 0, 0.08) !important;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-/* PAGINACIÓN ELEGANTE */
-.pagination .page-link {
-    color: #39A900;
-    border: 1px solid #39A900;
-    font-weight: 500;
-    padding: 0.5rem 0.9rem;
-    border-radius: 6px;
-    margin: 0 2px;
-}
-
-.pagination .page-item.active .page-link {
-    background-color: #39A900;
-    border-color: #39A900;
-    color: white;
-}
-
-.pagination .page-link:hover {
-    background-color: #39A900;
-    color: white;
-    border-color: #39A900;
-}
-
-/* BOTONES COMPACTOS */
-.btn-action {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-}
-
-.btn-action:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15) !important;
-}
-
-/* CARD LIMPIA */
-.card {
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08) !important;
-    border-radius: 16px !important;
-}
-</style>
 @endsection

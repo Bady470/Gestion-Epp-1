@@ -8,6 +8,7 @@
         --sena-yellow: #FFC107;
     }
 
+    /* Header Section */
     .header-section {
         background: linear-gradient(135deg, var(--sena-blue), var(--sena-green));
         color: white;
@@ -30,6 +31,16 @@
         margin: 0;
     }
 
+    .pedidos-count {
+        background: var(--sena-yellow);
+        color: #333;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 700;
+        display: inline-block;
+    }
+
+    /* Pedido Card */
     .pedido-card {
         background: white;
         border-radius: 12px;
@@ -53,10 +64,6 @@
         justify-content: space-between;
         align-items: flex-start;
         gap: 1rem;
-    }
-
-    .pedido-info {
-        flex: 1;
     }
 
     .pedido-info h5 {
@@ -87,11 +94,12 @@
         min-width: 100px;
     }
 
+    /* Badges */
     .estado-badge {
-        padding: 0.75rem 1.25rem;
+        padding: 0.6rem 1rem;
         border-radius: 8px;
         font-weight: 600;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         display: inline-block;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
@@ -99,13 +107,13 @@
     .estado-pendiente {
         background: linear-gradient(135deg, #fff3cd, #ffe69c);
         color: #856404;
-        border: 2px solid #ffc107;
+        border: 1px solid #ffc107;
     }
 
     .estado-enviado {
         background: linear-gradient(135deg, #cfe2ff, #9ec5fe);
         color: #084298;
-        border: 2px solid #0d6efd;
+        border: 1px solid #0d6efd;
     }
 
     .ficha-info-box {
@@ -113,7 +121,7 @@
         color: white;
         padding: 1rem;
         border-radius: 8px;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
     }
 
     .ficha-numero {
@@ -126,6 +134,7 @@
         opacity: 0.95;
     }
 
+    /* Table Styles */
     .elementos-table {
         width: 100%;
         border-collapse: collapse;
@@ -149,13 +158,11 @@
         border-bottom: 1px solid #e0e0e0;
     }
 
-    .elementos-table tbody tr:hover {
-        background: #f8f9fa;
-    }
-
     .elemento-nombre {
         font-weight: 600;
         color: #333;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 
     .elemento-talla {
@@ -172,7 +179,7 @@
         display: inline-block;
         background: var(--sena-green);
         color: white;
-        padding: 0.5rem 0.75rem;
+        padding: 0.4rem 0.7rem;
         border-radius: 6px;
         font-weight: 600;
     }
@@ -183,7 +190,7 @@
 
     .pedido-footer {
         background: #f8f9fa;
-        padding: 1.5rem;
+        padding: 1.25rem 1.5rem;
         border-top: 2px solid #e0e0e0;
         display: flex;
         justify-content: space-between;
@@ -191,18 +198,21 @@
         gap: 1rem;
     }
 
+    /* Buttons */
     .btn-accion {
         border-radius: 8px;
         font-weight: 600;
-        padding: 0.75rem 1.5rem;
+        padding: 0.6rem 1.2rem;
         transition: all 0.3s ease;
-        border: none;
-        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
     .btn-enviar {
         background: linear-gradient(135deg, var(--sena-green), #2d8a00);
         color: white;
+        border: none;
     }
 
     .btn-enviar:hover {
@@ -214,6 +224,7 @@
     .btn-resumen {
         background: linear-gradient(135deg, var(--sena-blue), #2d5a7a);
         color: white;
+        border: none;
     }
 
     .btn-resumen:hover {
@@ -231,7 +242,6 @@
         font-size: 1.1rem;
         transition: all 0.3s ease;
         border: none;
-        cursor: pointer;
     }
 
     .btn-global:hover {
@@ -246,64 +256,18 @@
         border-radius: 8px;
         padding: 0.75rem 1.5rem;
         font-weight: 600;
-        transition: all 0.3s ease;
         border: none;
-        cursor: pointer;
     }
 
-    .btn-exportar:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(57, 169, 0, 0.3);
-        color: white;
-    }
-
-    .btn-exportar:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-        transform: none;
-    }
-
-    .alerta-vacia {
-        background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-        border-left: 5px solid var(--sena-blue);
-        border-radius: 12px;
-        padding: 2rem;
-        text-align: center;
-        color: var(--sena-blue);
-    }
-
-    .alerta-vacia i {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        opacity: 0.7;
-    }
-
-    .alerta-vacia h4 {
-        font-family: 'Poppins', sans-serif;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-    }
-
-    .pedidos-count {
-        background: var(--sena-yellow);
-        color: #333;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-weight: 700;
-        display: inline-block;
-    }
-
-    /* Modal mejorado */
+    /* Modal Styles */
     .modal-content {
         border-radius: 12px;
         border: none;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     }
 
     .modal-header {
         background: linear-gradient(135deg, var(--sena-blue), var(--sena-green));
         color: white;
-        border: none;
         border-radius: 12px 12px 0 0;
     }
 
@@ -311,71 +275,42 @@
         filter: brightness(0) invert(1);
     }
 
-    .modal-body {
-        padding: 1.5rem;
-    }
-
-    .modal-footer {
-        border-top: 2px solid #e0e0e0;
-        padding: 1.5rem;
-    }
-
-    /* Tabla consolidada en modal */
     .tabla-consolidada {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 1rem;
     }
 
-    .tabla-consolidada thead {
+    .tabla-consolidada th {
+        padding: 1rem;
         background: #f8f9fa;
         border-bottom: 2px solid #e0e0e0;
-    }
-
-    .tabla-consolidada thead th {
-        padding: 1rem;
-        text-align: left;
         font-weight: 600;
-        color: #333;
-        font-size: 0.9rem;
     }
 
-    .tabla-consolidada tbody td {
+    .tabla-consolidada td {
         padding: 0.75rem 1rem;
         border-bottom: 1px solid #e0e0e0;
-    }
-
-    .tabla-consolidada tbody tr:hover {
-        background: #f8f9fa;
-    }
-
-    .tabla-consolidada tbody tr:last-child td {
-        border-bottom: none;
     }
 
     .talla-consolidada {
         background: var(--sena-green);
         color: white;
-        padding: 0.4rem 0.8rem;
-        border-radius: 6px;
-        font-weight: 600;
-        font-size: 0.85rem;
-        display: inline-block;
+        padding: 0.3rem 0.6rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
     }
 
     .cantidad-consolidada {
         background: var(--sena-blue);
         color: white;
-        padding: 0.4rem 0.8rem;
-        border-radius: 6px;
-        font-weight: 600;
-        font-size: 0.85rem;
-        display: inline-block;
+        padding: 0.3rem 0.6rem;
+        border-radius: 4px;
+        font-weight: 700;
     }
 
     .totales-modal {
-        background: linear-gradient(135deg, #f0f0f0, #e9ecef);
-        padding: 1.5rem;
+        background: #f8f9fa;
+        padding: 1.25rem;
         border-radius: 8px;
         margin-top: 1.5rem;
         border-left: 4px solid var(--sena-green);
@@ -384,98 +319,144 @@
     .total-row {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.75rem;
-    }
-
-    .total-row:last-child {
-        margin-bottom: 0;
-        border-top: 2px solid #e0e0e0;
-        padding-top: 0.75rem;
-        margin-top: 0.75rem;
-    }
-
-    .total-label {
-        font-weight: 600;
-        color: #333;
+        margin-bottom: 0.5rem;
     }
 
     .total-valor {
         font-weight: 700;
         color: var(--sena-green);
-        font-size: 1.1rem;
-    }
-
-    .spinner-container {
-        text-align: center;
-        padding: 2rem;
-    }
-
-    .spinner-border {
-        color: var(--sena-green);
     }
 
     .export-info {
-        background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
-        border-left: 4px solid var(--sena-green);
-        padding: 1rem;
+        background: #e8f5e9;
+        padding: 0.75rem 1rem;
         border-radius: 8px;
         margin-bottom: 1rem;
         color: #2e7d32;
+        font-size: 0.9rem;
     }
 
-    .export-info i {
-        margin-right: 0.5rem;
-    }
+    /* Responsive Adjustments */
+    @media (max-width: 767.98px) {
+        .header-section {
+            padding: 1.5rem;
+            text-align: center;
+        }
 
-    @media (max-width: 768px) {
-        .header-section h2 {
-            font-size: 1.5rem;
+        .header-section .d-flex {
+            flex-direction: column;
+            align-items: center !important;
+            gap: 1rem;
         }
 
         .pedido-header {
             flex-direction: column;
+            align-items: stretch;
+        }
+
+        .pedido-header .text-end {
+            text-align: left !important;
+            margin-top: 0.5rem;
+        }
+
+        .info-label {
+            min-width: 80px;
+        }
+
+        /* Table to Cards on Mobile */
+        .elementos-table thead {
+            display: none;
+        }
+
+        .elementos-table, .elementos-table tbody, .elementos-table tr, .elementos-table td {
+            display: block;
+            width: 100%;
+        }
+
+        .elementos-table tr {
+            margin-bottom: 1rem;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 0.5rem;
+            background: #fdfdfd;
+        }
+
+        .elementos-table td {
+            text-align: right;
+            padding: 0.75rem 1rem;
+            position: relative;
+            border-bottom: 1px solid #f1f1f1;
+            min-height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .elementos-table td:last-child {
+            border-bottom: none;
+        }
+
+        .elementos-table td::before {
+            content: attr(data-label);
+            position: absolute;
+            left: 1rem;
+            width: 40%;
+            text-align: left;
+            font-weight: 700;
+            color: #666;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* Special handling for the "Elemento" cell to avoid overlap */
+        .elementos-table td[data-label="Elemento"] {
+            flex-direction: column;
+            align-items: flex-end;
+            text-align: right;
+            padding-left: 45%; /* Give more space to the label */
+        }
+
+        .elementos-table td[data-label="Elemento"]::before {
+            top: 1rem;
+            transform: none;
         }
 
         .pedido-footer {
             flex-direction: column;
+            align-items: stretch;
         }
 
-        .elementos-table {
-            font-size: 0.85rem;
-        }
-
-        .elementos-table th,
-        .elementos-table td {
-            padding: 0.75rem 0.5rem;
-        }
-
-        .modal-footer {
+        .pedido-footer div:last-child {
+            display: flex;
             flex-direction: column;
+            gap: 0.5rem;
         }
 
-        .btn-exportar {
+        .btn-accion, .btn-global {
             width: 100%;
+            justify-content: center;
         }
     }
 </style>
 
 <div class="container py-4">
-    <!-- Header mejorado -->
+    <!-- Header -->
     <div class="header-section">
         <div class="d-flex justify-content-between align-items-start">
             <div>
                 <h2>📋 Pedidos Recibidos</h2>
-                <p class="text-white-50">Gestiona las solicitudes de equipos de protección personal</p>
-                <div style="margin-top: 1rem;">
-                    <span style="display: inline-block; background: rgba(255, 255, 255, 0.2); padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600; border: 2px solid rgba(255, 255, 255, 0.3);">
-                        <i class="bi bi-building"></i> Área: <strong>{{ auth()->user()->area->nombre ?? 'No asignada' }}</strong>
+                <p>Gestiona las solicitudes de equipos de protección personal</p>
+                <div class="mt-3">
+                    <span class="badge bg-white bg-opacity-25 border border-white border-opacity-50 px-3 py-2 rounded-pill">
+                        <i class="bi bi-building me-1"></i> Área: <strong>{{ auth()->user()->area->nombre ?? 'No asignada' }}</strong>
                     </span>
                 </div>
             </div>
             @if($pedidos->count() > 0)
-            <div class="pedidos-count">
-                <i class="bi bi-inbox"></i> {{ $pedidos->count() }} pedido(s)
+            <div class="pedidos-count shadow-sm">
+                <i class="bi bi-inbox-fill me-1"></i> {{ $pedidos->count() }} pedido(s)
             </div>
             @endif
         </div>
@@ -483,38 +464,40 @@
 
     <!-- Alertas -->
     @if(session('success'))
-    <div class="alert alert-success">
-        <i class="bi bi-check-circle"></i> {{ session('success') }}
-    </div>
-    @endif
-    @if(session('error'))
-    <div class="alert alert-danger">
-        <i class="bi bi-exclamation-circle"></i> {{ session('error') }}
+    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     @endif
 
-    <!-- Contenido principal -->
+    @if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
+
+    <!-- Contenido Principal -->
     @if($pedidos->count() > 0)
 
-    <!-- Botón global superior -->
+    <!-- Botón Global Superior -->
     <div class="text-center mb-4">
         <form action="{{ route('lider.enviar.todos') }}" method="POST" class="d-inline">
             @csrf
-            <button type="submit" class="btn btn-global"
+            <button type="submit" class="btn btn-global shadow"
                 onclick="return confirm('¿Enviar los {{ $pedidos->count() }} pedidos pendientes al administrador?')">
-                <i class="bi bi-send"></i> Enviar Todos ({{ $pedidos->count() }})
+                <i class="bi bi-send-fill me-2"></i> Enviar Todos al Administrador
             </button>
         </form>
     </div>
 
-    <!-- Lista de pedidos -->
+    <!-- Lista de Pedidos -->
     @foreach($pedidos as $pedido)
     <div class="pedido-card">
-        <!-- Header del pedido -->
         <div class="pedido-header">
             <div class="pedido-info">
                 <h5>
-                    <i class="bi bi-person-circle"></i> {{ $pedido->usuario->nombre_completo ?? 'Desconocido' }}
+                    <i class="bi bi-person-circle me-2 text-primary"></i> {{ $pedido->usuario->nombre_completo ?? 'Desconocido' }}
                 </h5>
                 <div class="info-row">
                     <i class="bi bi-building"></i>
@@ -531,79 +514,68 @@
                 <div class="estado-badge
                     @if($pedido->estado == 'pendiente') estado-pendiente
                     @elseif($pedido->estado == 'enviado') estado-enviado
-                    @else bg-secondary @endif">
-                    <i class="bi bi-circle-fill"></i> {{ ucfirst($pedido->estado) }}
+                    @else bg-secondary text-white @endif">
+                    <i class="bi bi-circle-fill me-1" style="font-size: 0.6rem;"></i> {{ ucfirst($pedido->estado) }}
                 </div>
             </div>
         </div>
 
-        <!-- Cuerpo del pedido -->
         <div class="pedido-body">
             <!-- Información de la ficha -->
             @if($pedido->ficha)
-            <div class="ficha-info-box">
-                <h6>
-                    <i class="bi bi-file-earmark"></i> Ficha Asignada
+            <div class="ficha-info-box shadow-sm">
+                <h6 class="mb-2 fw-bold">
+                    <i class="bi bi-file-earmark-text me-2"></i> Ficha Asignada
                 </h6>
                 <div class="ficha-numero">{{ $pedido->ficha->numero }}</div>
                 <div class="ficha-programa">
-                    <i class="bi bi-book"></i> {{ $pedido->ficha->programa->nombre ?? 'Programa desconocido' }}
+                    <i class="bi bi-book me-1"></i> {{ $pedido->ficha->programa->nombre ?? 'Programa desconocido' }}
                 </div>
             </div>
             @else
-            <div style="background: #f8d7da; color: #721c24; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid #f5c6cb;">
-                <i class="bi bi-exclamation-triangle"></i> <strong>Sin ficha asignada</strong>
+            <div class="alert alert-warning border-start border-4 py-2">
+                <i class="bi bi-exclamation-triangle me-2"></i> <strong>Sin ficha asignada</strong>
             </div>
             @endif
 
             <!-- Tabla de elementos -->
-            <h6 style="font-weight: 700; margin-bottom: 1rem; color: #333;">
-                <i class="bi bi-box-seam"></i> Elementos Solicitados
+            <h6 class="fw-bold mb-3 text-dark">
+                <i class="bi bi-box-seam me-2 text-success"></i> Elementos Solicitados
             </h6>
-            <div style="overflow-x: auto;">
+            <div class="table-responsive">
                 <table class="elementos-table">
                     <thead>
                         <tr>
                             <th>Elemento</th>
-                            <th>Talla</th>
-                            <th>Cantidad</th>
+                            <th class="text-center">Talla</th>
+                            <th class="text-center">Cantidad</th>
                             <th>Área</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($pedido->elementos as $item)
                         <tr>
-                            <td>
+                            <td data-label="Elemento">
                                 <div class="elemento-nombre">{{ $item->nombre }}</div>
                                 @if($item->filtro)
-                                <small style="color: #666;">
-                                    <i class="bi bi-shield-check"></i> {{ $item->filtro->parte_del_cuerpo ?? '-' }}
+                                <small class="text-muted">
+                                    <i class="bi bi-shield-check me-1"></i> {{ $item->filtro->parte_del_cuerpo ?? '-' }}
                                 </small>
                                 @endif
                             </td>
-                            <td>
-                                <span class="elemento-talla">
-                                    {{ $item->pivot->talla ?? 'Sin talla' }}
-                                </span>
+                            <td data-label="Talla" class="text-md-center">
+                                <span class="elemento-talla">{{ $item->pivot->talla ?? 'Sin talla' }}</span>
                             </td>
-                            <td>
-                                <span class="cantidad-badge">
-                                    {{ $item->pivot->cantidad ?? 1 }}
-                                </span>
+                            <td data-label="Cantidad" class="text-md-center">
+                                <span class="cantidad-badge">{{ $item->pivot->cantidad ?? 1 }}</span>
                             </td>
-                            <td>
-                                @if($item->area)
-                                <span style="color: #666;">{{ $item->area->nombre }}</span>
-                                @else
-                                <span style="color: #999;">-</span>
-                                @endif
+                            <td data-label="Área">
+                                <span class="text-muted small">{{ $item->area->nombre ?? '-' }}</span>
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4" class="text-center text-muted">
-                                No hay elementos en este pedido
-                            </td>
+                            <td colspan="4" class="text-center py-4 text-muted">No hay elementos en este pedido</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -611,25 +583,20 @@
             </div>
         </div>
 
-        <!-- Footer del pedido -->
         <div class="pedido-footer">
-            <div>
-                <small style="color: #666;">
-                    <i class="bi bi-hash"></i> ID Pedido: <strong>#{{ $pedido->id }}</strong>
-                </small>
+            <div class="small text-muted">
+                <i class="bi bi-hash"></i> ID Pedido: <strong>#{{ $pedido->id }}</strong>
             </div>
-            <div style="display: flex; gap: 1rem;">
+            <div class="d-flex gap-2">
                 @if($pedido->estado == 'pendiente')
-                <form action="{{ route('lider.enviar', $pedido->id) }}" method="POST" class="d-inline">
+                <form action="{{ route('lider.enviar', $pedido->id) }}" method="POST" class="m-0">
                     @csrf
-                    <button type="submit" class="btn btn-accion btn-enviar">
-                        <i class="bi bi-send"></i> Enviar al Admin
+                    <button type="submit" class="btn btn-accion btn-enviar shadow-sm">
+                        <i class="bi bi-send-fill"></i> Enviar al Admin
                     </button>
                 </form>
                 @endif
-
-                <!-- Botón para ver resumen consolidado -->
-                <button type="button" class="btn btn-accion btn-resumen" onclick="abrirResumenConsolidado()">
+                <button type="button" class="btn btn-accion btn-resumen shadow-sm" onclick="abrirResumenConsolidado()">
                     <i class="bi bi-receipt-cutoff"></i> Ver Resumen
                 </button>
             </div>
@@ -637,234 +604,164 @@
     </div>
     @endforeach
 
-    <!-- Botón global inferior -->
-    <div class="text-center mt-4">
+    <!-- Botón Global Inferior -->
+    <div class="text-center mt-4 mb-5">
         <form action="{{ route('lider.enviar.todos') }}" method="POST" class="d-inline">
             @csrf
-            <button type="submit" class="btn btn-global"
+            <button type="submit" class="btn btn-global shadow"
                 onclick="return confirm('¿Enviar los {{ $pedidos->count() }} pedidos pendientes al administrador?')">
-                <i class="bi bi-send"></i> Enviar Todos al Administrador
+                <i class="bi bi-send-fill me-2"></i> Enviar Todos al Administrador
             </button>
         </form>
     </div>
 
     @else
-    <!-- Sin pedidos -->
-    <div class="alerta-vacia">
-        <i class="bi bi-inbox"></i>
-        <h4>No hay pedidos</h4>
-        <p>No hay solicitudes de equipos de protección personal para tu área en este momento.</p>
+    <!-- Estado Vacío -->
+    <div class="card border-0 shadow-sm py-5 text-center rounded-4">
+        <div class="card-body">
+            <i class="bi bi-inbox text-muted mb-3" style="font-size: 4rem; opacity: 0.3;"></i>
+            <h4 class="fw-bold text-muted">No hay pedidos pendientes</h4>
+            <p class="text-muted">No hay solicitudes de equipos de protección personal para tu área en este momento.</p>
+        </div>
     </div>
     @endif
 </div>
 
-<!-- Modal para resumen consolidado -->
+<!-- Modal para Resumen Consolidado -->
 <div class="modal fade" id="modalResumenConsolidado" tabindex="-1" aria-labelledby="modalResumenLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalResumenLabel">
-                    <i class="bi bi-receipt-cutoff"></i> Resumen Consolidado del Área
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" id="modalResumenLabel">
+                    <i class="bi bi-receipt-cutoff me-2"></i> Resumen Consolidado del Área
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body p-4">
                 <div id="resumenContainer">
-                    <div class="spinner-container">
-                        <div class="spinner-border" role="status">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-success" role="status">
                             <span class="visually-hidden">Cargando...</span>
                         </div>
+                        <p class="mt-2 text-muted">Generando consolidado...</p>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="bi bi-x-circle"></i> Cerrar
-                </button>
-                <button type="button" class="btn btn-exportar" id="btnExportarExcel" onclick="exportarExcel()" style="display: none;">
-                    <i class="bi bi-download"></i> Exportar a Excel GFPI-F-186
+            <div class="modal-footer bg-light border-0">
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-exportar px-4 shadow-sm" id="btnExportarExcel" onclick="exportarExcel()" style="display: none;">
+                    <i class="bi bi-file-earmark-excel-fill me-2"></i> Exportar a Excel GFPI-F-186
                 </button>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-{{-- Agregar este código a tu vista resources/views/dashboard/lider.blade.php --}}
-
-{{-- Busca la sección donde está el JavaScript y reemplaza la función abrirResumenConsolidado() --}}
-
 <script>
-    // Función para abrir modal con resumen consolidado
     function abrirResumenConsolidado() {
         const container = document.getElementById('resumenContainer');
         const btnExportar = document.getElementById('btnExportarExcel');
 
-        // Mostrar modal
+        // Reset container and show modal
+        container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-success" role="status"></div><p class="mt-2 text-muted">Generando consolidado...</p></div>';
         const modal = new bootstrap.Modal(document.getElementById('modalResumenConsolidado'));
         modal.show();
 
-        // Cargar datos - RUTA CORREGIDA
         fetch(`{{ route('lider.resumen-consolidado') }}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     let html = `
-                        <div class="export-info">
-                            <i class="bi bi-info-circle"></i>
+                        <div class="export-info shadow-sm">
+                            <i class="bi bi-info-circle-fill me-2"></i>
                             Consolidación de <strong>${data.total_pedidos}</strong> pedido(s) del área
                         </div>
-
-                        <table class="tabla-consolidada">
-                            <thead>
-                                <tr>
-                                    <th>Producto</th>
-                                    <th>Talla</th>
-                                    <th class="text-center">Cantidad Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                        <div class="table-responsive">
+                            <table class="tabla-consolidada">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th class="text-center">Talla</th>
+                                        <th class="text-center">Cantidad Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
                     `;
 
                     data.consolidado.forEach(item => {
                         html += `
                             <tr>
-                                <td><strong>${item.nombre}</strong></td>
-                                <td>
-                                    <span class="talla-consolidada">${item.talla}</span>
-                                </td>
-                                <td class="text-center">
-                                    <span class="cantidad-consolidada">${item.cantidad_total}</span>
-                                </td>
+                                <td><span class="fw-bold text-dark">${item.nombre}</span></td>
+                                <td class="text-center"><span class="talla-consolidada">${item.talla}</span></td>
+                                <td class="text-center"><span class="cantidad-consolidada shadow-sm">${item.cantidad_total}</span></td>
                             </tr>
                         `;
                     });
 
                     html += `
-                            </tbody>
-                        </table>
-
-                        <div class="totales-modal">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="totales-modal shadow-sm">
                             <div class="total-row">
-                                <span class="total-label">
-                                    <i class="bi bi-box-seam"></i> Total de productos diferentes:
-                                </span>
+                                <span><i class="bi bi-box-seam me-2"></i> Productos diferentes:</span>
                                 <span class="total-valor">${data.consolidado.length}</span>
                             </div>
-
                             <div class="total-row">
-                                <span class="total-label">
-                                    <i class="bi bi-sum"></i> Total de unidades:
-                                </span>
+                                <span><i class="bi bi-plus-circle me-2"></i> Total unidades:</span>
                                 <span class="total-valor">${data.total_unidades}</span>
                             </div>
-
-                            <div class="total-row">
-                                <span class="total-label">
-                                    <i class="bi bi-file-earmark"></i> Total de pedidos:
-                                </span>
+                            <div class="total-row border-top pt-2 mt-2">
+                                <span><i class="bi bi-inbox me-2"></i> Pedidos procesados:</span>
                                 <span class="total-valor">${data.total_pedidos}</span>
                             </div>
                         </div>
                     `;
-
                     container.innerHTML = html;
-                    btnExportar.style.display = 'block';
+                    btnExportar.style.display = 'inline-flex';
                 } else {
-                    container.innerHTML = `
-                        <div style="text-align: center; padding: 2rem; color: #666;">
-                            <i class="bi bi-inbox" style="font-size: 3rem; opacity: 0.5;"></i>
-                            <h5 style="margin-top: 1rem;">No hay datos disponibles</h5>
-                        </div>
-                    `;
+                    container.innerHTML = '<div class="text-center py-5 text-muted"><i class="bi bi-inbox fs-1 opacity-25"></i><p class="mt-2">No hay datos disponibles</p></div>';
                     btnExportar.style.display = 'none';
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                container.innerHTML = `
-                    <div style="text-align: center; padding: 2rem; color: #d32f2f;">
-                        <i class="bi bi-exclamation-triangle" style="font-size: 3rem;"></i>
-                        <h5 style="margin-top: 1rem;">Error al cargar el resumen</h5>
-                    </div>
-                `;
+                container.innerHTML = '<div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-2"></i> Error al cargar el resumen</div>';
                 btnExportar.style.display = 'none';
             });
     }
 
-    // Función para exportar a Excel - RUTA CORREGIDA
     function exportarExcel() {
         const btnExportar = document.getElementById('btnExportarExcel');
-        const btnAnterior = btnExportar.innerHTML;
-
-        // Mostrar estado de carga
+        const originalContent = btnExportar.innerHTML;
         btnExportar.disabled = true;
-        btnExportar.innerHTML = '<i class="bi bi-hourglass-split"></i> Generando archivo...';
+        btnExportar.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Generando...';
 
-        // Realizar descarga - RUTA CORREGIDA
         fetch(`{{ route('lider.exportar-gfpi-f186') }}`)
             .then(response => {
                 if (!response.ok) throw new Error('Error en la descarga');
                 return response.blob();
             })
             .then(blob => {
-                // Crear URL y descargar
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `GFPI-F-186_{{ auth()->user()->area->nombre ?? 'Área' }}_${new Date().toLocaleDateString('es-CO').replace(/\//g, '-')}.xlsx`;
+                a.download = `GFPI-F-186_{{ auth()->user()->area->nombre ?? 'Area' }}_${new Date().toISOString().split('T')[0]}.xlsx`;
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
-
-                // Restaurar botón
                 btnExportar.disabled = false;
-                btnExportar.innerHTML = btnAnterior;
-
-                // Mostrar mensaje de éxito
-                alert('Archivo Excel descargado correctamente');
+                btnExportar.innerHTML = originalContent;
             })
             .catch(error => {
                 console.error('Error:', error);
                 btnExportar.disabled = false;
-                btnExportar.innerHTML = btnAnterior;
+                btnExportar.innerHTML = originalContent;
                 alert('Error al descargar el archivo');
             });
     }
 </script>
-
-{{-- Asegúrate de que en tu modal tengas estos elementos --}}
-<div class="modal fade" id="modalResumenConsolidado" tabindex="-1" aria-labelledby="modalResumenLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalResumenLabel">
-                    <i class="bi bi-receipt-cutoff"></i> Resumen Consolidado del Área
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div id="resumenContainer">
-                    <div class="spinner-container">
-                        <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Cargando...</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="bi bi-x-circle"></i> Cerrar
-                </button>
-                <button type="button" class="btn btn-exportar" id="btnExportarExcel" onclick="exportarExcel()" style="display: none;">
-                    <i class="bi bi-download"></i> Exportar a Excel GFPI-F-186
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
 @endsection
