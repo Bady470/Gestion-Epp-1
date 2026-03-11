@@ -250,15 +250,15 @@
                                 <!-- Botones de Acción -->
                                 <div class="btn-action-group mt-3 mt-md-0">
                                     @if(!$notificacion->leida)
-                                        <button onclick="marcarComoLeida({{ $notificacion->id }})" class="btn-notif btn-notif-primary">
+                                        <button type="button" data-id="{{ $notificacion->id }}" onclick="marcarComoLeida(this)" class="btn-notif btn-notif-primary">
                                             <i class="bi bi-eye-fill"></i> Marcar leída
                                         </button>
                                     @else
-                                        <button onclick="marcarComoNoLeida({{ $notificacion->id }})" class="btn-notif btn-notif-muted">
+                                        <button type="button" data-id="{{ $notificacion->id }}" onclick="marcarComoNoLeida(this)" class="btn-notif btn-notif-muted">
                                             <i class="bi bi-eye-slash"></i> Marcar no leída
                                         </button>
                                     @endif
-                                    <button onclick="eliminarNotificacion({{ $notificacion->id }}, event)" class="btn-notif btn-notif-danger">
+                                    <button type="button" data-id="{{ $notificacion->id }}" onclick="eliminarNotificacion(this)" class="btn-notif btn-notif-danger">
                                         <i class="bi bi-trash3-fill"></i> Eliminar
                                     </button>
                                 </div>
@@ -273,60 +273,80 @@
 </div>
 
 <script>
-function marcarComoLeida(notificacionId) {
-    fetch(`/admin/notificaciones/${notificacionId}/marcar-leida`, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'Content-Type': 'application/json',
-        },
-    }).then(() => location.reload());
-}
+    // Función para obtener el token CSRF
+    function getCsrfToken() {
+        const tokenElement = document.querySelector('meta[name="csrf-token"]');
+        if (tokenElement) {
+            return tokenElement.content;
+        }
+        console.error('CSRF token not found: Make sure you have <meta name="csrf-token" content="{{ csrf_token() }}"> in your head section.');
+        return null;
+    }
 
-function marcarComoNoLeida(notificacionId) {
-    fetch(`/admin/notificaciones/${notificacionId}/marcar-no-leida`, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'Content-Type': 'application/json',
-        },
-    }).then(() => location.reload());
-}
-
-function marcarTodasComoLeidas() {
-    fetch('/admin/notificaciones/marcar-todas-leidas', {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'Content-Type': 'application/json',
-        },
-    }).then(() => location.reload());
-}
-
-function eliminarNotificacion(notificacionId, event) {
-    if (confirm('¿Estás seguro de que deseas eliminar esta notificación?')) {
-        const card = event.target.closest('.notification-card');
-        if (card) {
-            card.classList.add('fade-out');
+    // Función genérica para enviar solicitudes fetch
+    async function sendNotificationRequest(url, method = 'POST', notificacionId = null) {
+        const csrfToken = getCsrfToken();
+        if (!csrfToken) {
+            alert('Error de seguridad: CSRF token no encontrado.');
+            return;
         }
 
-        setTimeout(() => {
-            fetch(`/admin/notificaciones/${notificacionId}`, {
-                method: 'DELETE',
+        try {
+            const response = await fetch(url, {
+                method: method,
                 headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'X-CSRF-TOKEN': csrfToken,
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
-            }).then(response => {
-                if (response.ok) {
-                    location.reload();
-                } else {
-                    alert('Error al eliminar la notificación');
-                    if (card) card.classList.remove('fade-out');
-                }
             });
-        }, 400);
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `Error en la solicitud: ${response.statusText}`);
+            }
+
+            // Si la respuesta es OK, recargar la página o actualizar la UI
+            location.reload();
+
+        } catch (error) {
+            console.error('Error en la operación:', error);
+            alert('Ocurrió un error: ' + error.message);
+            // Si es una eliminación y falla, remover la clase fade-out si existe
+            if (method === 'DELETE' && notificacionId) {
+                const card = document.getElementById(`notif-${notificacionId}`);
+                if (card) card.classList.remove('fade-out');
+            }
+        }
     }
-}
+
+    function marcarComoLeida(buttonElement) {
+        const notificacionId = buttonElement.dataset.id;
+        sendNotificationRequest(`/admin/notificaciones/${notificacionId}/marcar-leida`, 'POST');
+    }
+
+    function marcarComoNoLeida(buttonElement) {
+        const notificacionId = buttonElement.dataset.id;
+        sendNotificationRequest(`/admin/notificaciones/${notificacionId}/marcar-no-leida`, 'POST');
+    }
+
+    function marcarTodasComoLeidas() {
+        sendNotificationRequest('/admin/notificaciones/marcar-todas-leidas', 'POST');
+    }
+
+    async function eliminarNotificacion(buttonElement) {
+        const notificacionId = buttonElement.dataset.id;
+        if (confirm('¿Estás seguro de que deseas eliminar esta notificación?')) {
+            const card = document.getElementById(`notif-${notificacionId}`);
+            if (card) {
+                card.classList.add('fade-out');
+            }
+
+            // Esperar la animación antes de enviar la solicitud
+            await new Promise(resolve => setTimeout(resolve, 400));
+
+            sendNotificationRequest(`/admin/notificaciones/${notificacionId}`, 'DELETE', notificacionId);
+        }
+    }
 </script>
 @endsection

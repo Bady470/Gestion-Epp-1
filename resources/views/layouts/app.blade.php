@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+      <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Sistema EPP - SENA')</title>
 
@@ -179,11 +180,12 @@
 
 <body>
 
+
     <!-- HEADER VERDE SENA -->
     <header class="sena-header">
         <nav class="navbar navbar-expand-lg">
             <div class="container position-relative">
-                
+
                 <!-- LOGO A LA IZQUIERDA -->
                 <a class="navbar-brand" href="{{ route('dashboard.admin') }}">
                     <img src="{{ asset('img/logoblanco.png') }}" alt="SENA">
@@ -225,7 +227,7 @@
                     <!-- USUARIO A LA DERECHA -->
                     <div class="user-dropdown">
                         <div class="dropdown">
-                            <a class="dropdown-toggle d-flex align-items-center text-white text-decoration-none" 
+                            <a class="dropdown-toggle d-flex align-items-center text-white text-decoration-none"
                                href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <div class="user-avatar">
                                     {{ strtoupper(substr(Auth::user()->nombre_completo, 0, 2)) }}
