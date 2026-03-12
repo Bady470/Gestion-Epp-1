@@ -195,7 +195,7 @@
         }
 
         .table-container {
-            background: transparent;
+            background: transparent; 
             box-shadow: none;
             border: none;
         }
