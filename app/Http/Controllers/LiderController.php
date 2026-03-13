@@ -6,6 +6,11 @@ use App\Models\Pedido;
 use App\Models\Notificacion;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\PedidoEnviadoAdmin;
+use App\Mail\PedidosAgrupadosAdmin;
+use Illuminate\Support\Facades\Log;
+
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
@@ -31,7 +36,7 @@ class LiderController extends Controller
     }
 
     /**
-     * 👈 NUEVO: Obtener resumen consolidado de pedidos del área del líder (AJAX)
+     * Obtener resumen consolidado de pedidos del área del líder (AJAX)
      */
     public function resumenConsolidado()
     {
@@ -98,9 +103,9 @@ class LiderController extends Controller
     }
 
     /**
-     * 👈 NUEVO: Exportar a Excel formato GFPI-F-186 (Formato oficial SENA)
+     * Exportar a Excel formato GFPI-F-186 (Formato oficial SENA)
      */
-      public function exportarGFPIF186()
+    public function exportarGFPIF186()
     {
         try {
             $user = Auth::user();
@@ -154,7 +159,7 @@ class LiderController extends Controller
             $sheet = $spreadsheet->getActiveSheet();
             $sheet->setTitle('Materiales');
 
-            // 4. Configuración de Columnas (Anchos exactos del Excel)
+            // 4. Configuración de Columnas
             $sheet->getColumnDimension('A')->setWidth(1.71);
             $sheet->getColumnDimension('B')->setWidth(2.86);
             $sheet->getColumnDimension('C')->setWidth(8.14);
@@ -224,7 +229,6 @@ class LiderController extends Controller
             $sheet->getStyle('B5:O5')->applyFromArray($fontArial14Bold)->applyFromArray($alignCenterCenter)->applyFromArray($borderThin);
 
             // 7. Sección Información General
-            // Fila 6
             $sheet->mergeCells('C6:D6');
             $sheet->setCellValue('C6', 'RED DE CONOCIMIENTO - INSTITUCIONAL');
             $sheet->getStyle('C6:D6')->applyFromArray($fontArial11Bold)->applyFromArray($fillGray)->applyFromArray($borderThin);
@@ -241,7 +245,6 @@ class LiderController extends Controller
             $sheet->setCellValue('K6', 'N/A');
             $sheet->getStyle('K6:N6')->applyFromArray($borderThin);
 
-            // Fila 7
             $sheet->mergeCells('C7:D7');
             $sheet->setCellValue('C7', 'NIVEL DE FORMACIÓN ');
             $sheet->getStyle('C7:D7')->applyFromArray($fontArial11Bold)->applyFromArray($fillGray)->applyFromArray($borderThin);
@@ -258,9 +261,8 @@ class LiderController extends Controller
             $sheet->setCellValue('K7', $pedidos->first()->ficha->programa->nombre ?? 'No asignado');
             $sheet->getStyle('K7:N7')->applyFromArray($borderThin);
 
-            // Fila 8
             $sheet->mergeCells('C8:D8');
-            $sheet->setCellValue('C8', 'VERSIÓN ');
+            $sheet->setCellValue('C8', 'VERSIÓN PROGRAMA DE FORMACIÓN ');
             $sheet->getStyle('C8:D8')->applyFromArray($fontArial11Bold)->applyFromArray($fillGray)->applyFromArray($borderThin);
 
             $sheet->mergeCells('E8:F8');
@@ -298,7 +300,6 @@ class LiderController extends Controller
             $numero = 1;
 
             foreach ($consolidado as $item) {
-                // Formatear Observaciones con Instructores y Fichas
                 $obsText = "TALLA: " . strtoupper($item['talla']) . "\n\nSOLICITADO POR:\n";
                 foreach ($item['solicitantes'] as $info => $cant) {
                     $obsText .= "• " . $info . ": " . $cant . " Unid.\n";
@@ -316,7 +317,6 @@ class LiderController extends Controller
                 $sheet->setCellValue('M' . $row, '');
                 $sheet->setCellValue('N' . $row, 'X');
 
-                // Estilos para la fila de datos
                 $cols = ['C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N'];
                 foreach ($cols as $col) {
                     $style = $sheet->getStyle($col . $row);
@@ -351,42 +351,50 @@ class LiderController extends Controller
         }
     }
 
-
     /**
      * Enviar un pedido al administrador
      */
     public function enviarPedido($id)
     {
-        $pedido = Pedido::findOrFail($id);
-        $user = Auth::user();
+        try {
+            $pedido = Pedido::with(['usuario.area', 'elementos', 'ficha.programa'])->findOrFail($id);
+            $user = Auth::user();
 
-        if ($pedido->usuario->areas_id !== $user->areas_id) {
-            return redirect()->back()->with('error', 'No tienes permiso para enviar este pedido');
+            if ($pedido->usuario->areas_id !== $user->areas_id) {
+                return redirect()->back()->with('error', 'No tienes permiso para enviar este pedido');
+            }
+
+            $pedido->update(['estado' => 'enviado']);
+
+            // --- NOTIFICACIÓN PARA ADMINISTRADORES ---
+            $admins = User::where('roles_id', 1)->get();
+            foreach ($admins as $admin) {
+                Notificacion::create([
+                    'user_id' => $admin->id,
+                    'tipo' => 'nuevo_pedido',
+                    'titulo' => 'Nuevo Pedido Recibido',
+                    'mensaje' => "El líder {$user->nombre_completo} ha enviado el pedido #{$pedido->id} para revisión.",
+                    'pedido_id' => $pedido->id,
+                    'usuario_accion_id' => $user->id,
+                    'leida' => false,
+                    'datos_adicionales' => [
+                        'Líder' => $user->nombre_completo,
+                        'Área' => $user->area->nombre ?? 'No asignada',
+                        'Pedido_ID' => "#" . $pedido->id,
+                        'Fecha_Envío' => now()->format('d/m/Y H:i')
+                    ]
+                ]);
+            }
+
+            // --- ENVÍO DE CORREO ---
+            $adminEmail = config('mail.from.address'); // O el correo específico del administrador
+            Mail::to($adminEmail)->send(new PedidoEnviadoAdmin($pedido, $user->area->nombre ?? 'Área desconocida'));
+
+            return redirect()->back()->with('success', 'Pedido enviado y correo notificado correctamente');
+        } catch (\Exception $e) {
+            \Log::error('Error al enviar pedido: ' . $e->getMessage());
+            return redirect()->back()->with('success', 'Pedido enviado, pero hubo un problema con la notificación por correo.');
         }
-
-        $pedido->update(['estado' => 'enviado']);
-
-        // --- NOTIFICACIÓN PARA ADMINISTRADORES ---
-        $admins = User::where('roles_id', 1)->get();
-        foreach ($admins as $admin) {
-            Notificacion::create([
-                'user_id' => $admin->id,
-                'tipo' => 'nuevo_pedido',
-                'titulo' => 'Nuevo Pedido Recibido',
-                'mensaje' => "El líder {$user->nombre_completo} ha enviado el pedido #{$pedido->id} para revisión.",
-                'pedido_id' => $pedido->id,
-                'usuario_accion_id' => $user->id,
-                'leida' => false,
-                'datos_adicionales' => [
-                    'Líder' => $user->nombre_completo,
-                    'Área' => $user->area->nombre ?? 'No asignada',
-                    'Pedido_ID' => "#" . $pedido->id,
-                    'Fecha_Envío' => now()->format('d/m/Y H:i')
-                ]
-            ]);
-        }
-
-        return redirect()->back()->with('success', 'Pedido enviado al administrador correctamente');
     }
 
     /**
@@ -394,40 +402,53 @@ class LiderController extends Controller
      */
     public function enviarTodos()
     {
-        $user = Auth::user();
+        try {
+            $user = Auth::user();
 
-        $pedidos = Pedido::whereHas('usuario', function ($query) use ($user) {
-            $query->where('areas_id', $user->areas_id);
-        })->where('estado', 'pendiente')->get();
+            $pedidos = Pedido::whereHas('usuario', function ($query) use ($user) {
+                $query->where('areas_id', $user->areas_id);
+            })->where('estado', 'pendiente')->with(['usuario.area', 'elementos', 'ficha.programa'])->get();
 
-        if ($pedidos->isEmpty()) {
-            return redirect()->back()->with('info', 'No hay pedidos pendientes para enviar');
+            if ($pedidos->isEmpty()) {
+                return redirect()->back()->with('info', 'No hay pedidos pendientes para enviar');
+            }
+
+            $areaNombre = $user->area->nombre ?? 'Área desconocida';
+            $instructores = $pedidos->pluck('usuario.nombre_completo')->unique();
+
+            // --- ENVÍO DE CORREO CONSOLIDADO ---
+            $adminEmail = config('mail.from.address');
+            Mail::to($adminEmail)->send(new PedidosAgrupadosAdmin($pedidos, $areaNombre, $instructores));
+
+            // Actualizar estados
+            foreach ($pedidos as $pedido) {
+                $pedido->update(['estado' => 'enviado']);
+            }
+
+            // --- NOTIFICACIÓN PARA ADMINISTRADORES (Consolidado) ---
+            $admins = User::where('roles_id', 1)->get();
+            foreach ($admins as $admin) {
+                Notificacion::create([
+                    'user_id' => $admin->id,
+                    'tipo' => 'consolidado_pedidos',
+                    'titulo' => 'Consolidado de Pedidos Enviado',
+                    'mensaje' => "Se han enviado " . $pedidos->count() . " pedidos del área de {$user->nombre_completo} para revisión.",
+                    'usuario_accion_id' => $user->id,
+                    'leida' => false,
+                    'datos_adicionales' => [
+                        'Líder' => $user->nombre_completo,
+                        'Área' => $areaNombre,
+                        'Total_Pedidos' => $pedidos->count(),
+                        'Fecha_Envío' => now()->format('d/m/Y H:i')
+                    ]
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'Se enviaron ' . $pedidos->count() . ' pedidos y se notificó al administrador');
+        } catch (\Exception $e) {
+            \Log::error('Error al enviar todos los pedidos: ' . $e->getMessage());
+            return redirect()->back()->with('success', 'Pedidos enviados, pero hubo un problema con la notificación por correo.');
         }
-
-        foreach ($pedidos as $pedido) {
-            $pedido->update(['estado' => 'enviado']);
-        }
-
-        // --- NOTIFICACIÓN PARA ADMINISTRADORES (Consolidado) ---
-        $admins = User::where('roles_id', 1)->get();
-        foreach ($admins as $admin) {
-            Notificacion::create([
-                'user_id' => $admin->id,
-                'tipo' => 'consolidado_pedidos',
-                'titulo' => 'Consolidado de Pedidos Enviado',
-                'mensaje' => "Se han enviado " . $pedidos->count() . " pedidos del área de {$user->nombre_completo} para revisión.",
-                'usuario_accion_id' => $user->id,
-                'leida' => false,
-                'datos_adicionales' => [
-                    'Líder' => $user->nombre_completo,
-                    'Área' => $user->area->nombre ?? 'No asignada',
-                    'Total_Pedidos' => $pedidos->count(),
-                    'Fecha_Envío' => now()->format('d/m/Y H:i')
-                ]
-            ]);
-        }
-
-        return redirect()->back()->with('success', 'Se enviaron ' . $pedidos->count() . ' pedidos al administrador');
     }
 
     /**
