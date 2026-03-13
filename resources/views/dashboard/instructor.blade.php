@@ -11,10 +11,14 @@
     .header-section {
         background: linear-gradient(135deg, var(--sena-blue), var(--sena-green));
         color: white;
-        padding: 2rem 0;
+        padding: 2rem 2rem;
         margin-bottom: 2rem;
         border-radius: 12px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-section > div {
+        padding: 0 1rem;
     }
 
     .header-section h2 {
@@ -522,7 +526,7 @@
     <div class="header-section">
         <div class="d-flex justify-content-between align-items-start">
             <div>
-                <h2>👋 Bienvenido, {{ $user->nombre_completo }}</h2>
+                <h2><i class="bi bi-person-check" style="margin-right: 0.5rem;"></i>Bienvenido, {{ $user->nombre_completo }}</h2>
                 <p class="text-white-50">Selecciona los equipos de protección personal que necesitas</p>
                 <div class="area-badge">
                     <i class="bi bi-tag"></i> Área: <strong>{{ $user->area->nombre ?? 'Sin área asignada' }}</strong>
