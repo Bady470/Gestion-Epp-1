@@ -400,56 +400,71 @@ class LiderController extends Controller
     /**
      * Enviar todos los pedidos pendientes
      */
-    public function enviarTodos()
-    {
-        try {
-            $user = Auth::user();
+   public function enviarTodos()
+{
+    try {
+        $user = Auth::user();
 
-            $pedidos = Pedido::whereHas('usuario', function ($query) use ($user) {
+        // ⚡ consulta optimizada (quitamos cargas innecesarias)
+        $pedidos = Pedido::whereHas('usuario', function ($query) use ($user) {
                 $query->where('areas_id', $user->areas_id);
-            })->where('estado', 'pendiente')->with(['usuario.area', 'elementos', 'ficha.programa'])->get();
+            })
+            ->where('estado', 'pendiente')
+            ->with(['usuario.area', 'ficha.programa']) // ❌ quitamos 'elementos' si no es crítico
+            ->get();
 
-            if ($pedidos->isEmpty()) {
-                return redirect()->back()->with('info', 'No hay pedidos pendientes para enviar');
-            }
-
-            $areaNombre = $user->area->nombre ?? 'Área desconocida';
-            $instructores = $pedidos->pluck('usuario.nombre_completo')->unique();
-
-            // --- ENVÍO DE CORREO CONSOLIDADO ---
-            $adminEmail = config('mail.from.address');
-            Mail::to($adminEmail)->send(new PedidosAgrupadosAdmin($pedidos, $areaNombre, $instructores));
-
-            // Actualizar estados
-            foreach ($pedidos as $pedido) {
-                $pedido->update(['estado' => 'enviado']);
-            }
-
-            // --- NOTIFICACIÓN PARA ADMINISTRADORES (Consolidado) ---
-            $admins = User::where('roles_id', 1)->get();
-            foreach ($admins as $admin) {
-                Notificacion::create([
-                    'user_id' => $admin->id,
-                    'tipo' => 'consolidado_pedidos',
-                    'titulo' => 'Consolidado de Pedidos Enviado',
-                    'mensaje' => "Se han enviado " . $pedidos->count() . " pedidos del área de {$user->nombre_completo} para revisión.",
-                    'usuario_accion_id' => $user->id,
-                    'leida' => false,
-                    'datos_adicionales' => [
-                        'Líder' => $user->nombre_completo,
-                        'Área' => $areaNombre,
-                        'Total_Pedidos' => $pedidos->count(),
-                        'Fecha_Envío' => now()->format('d/m/Y H:i')
-                    ]
-                ]);
-            }
-
-            return redirect()->back()->with('success', 'Se enviaron ' . $pedidos->count() . ' pedidos y se notificó al administrador');
-        } catch (\Exception $e) {
-            \Log::error('Error al enviar todos los pedidos: ' . $e->getMessage());
-            return redirect()->back()->with('success', 'Pedidos enviados, pero hubo un problema con la notificación por correo.');
+        if ($pedidos->isEmpty()) {
+            return back()->with('info', 'No hay pedidos pendientes para enviar');
         }
+
+        $areaNombre = $user->area->nombre ?? 'Área desconocida';
+        $instructores = $pedidos->pluck('usuario.nombre_completo')->unique();
+
+        // 📧 correo (único proceso pesado)
+        $adminEmail = config('mail.from.address');
+        Mail::to($adminEmail)->send(
+            new PedidosAgrupadosAdmin($pedidos, $areaNombre, $instructores)
+        );
+
+        // ⚡ UPDATE MASIVO (sin foreach)
+        Pedido::whereIn('id', $pedidos->pluck('id'))
+            ->update(['estado' => 'enviado']);
+
+        // ⚡ NOTIFICACIONES OPTIMIZADAS
+        $adminsIds = User::where('roles_id', 1)->pluck('id');
+
+        $notificaciones = [];
+
+        foreach ($adminsIds as $adminId) {
+            $notificaciones[] = [
+                'user_id' => $adminId,
+                'tipo' => 'consolidado_pedidos',
+                'titulo' => 'Consolidado de Pedidos Enviado',
+                'mensaje' => "Se enviaron {$pedidos->count()} pedidos del área {$areaNombre}.",
+                'usuario_accion_id' => $user->id,
+                'leida' => false,
+                'datos_adicionales' => json_encode([
+                    'Líder' => $user->nombre_completo,
+                    'Área' => $areaNombre,
+                    'Total_Pedidos' => $pedidos->count(),
+                    'Fecha_Envío' => now()->format('d/m/Y H:i')
+                ]),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+
+        // ⚡ INSERT MASIVO (MUCHO más rápido)
+        Notificacion::insert($notificaciones);
+
+        return back()->with('success', 'Se enviaron ' . $pedidos->count() . ' pedidos correctamente');
+
+    } catch (\Exception $e) {
+        \Log::error('Error al enviar pedidos: ' . $e->getMessage());
+
+        return back()->with('error', 'Error al enviar los pedidos');
     }
+}
 
     /**
      * Aprobar un pedido
