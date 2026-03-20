@@ -17,20 +17,29 @@ class PedidosAgrupadosAdmin extends Mailable
 
     public function __construct(Collection $pedidos, $area, $instructores)
     {
-        $this->pedidos = $pedidos;
+        // ⚡ TRANSFORMAR datos (esto es clave)
+        $this->pedidos = $pedidos->map(function ($pedido) {
+            return [
+                'id' => $pedido->id,
+                'usuario' => $pedido->usuario->nombre_completo ?? '',
+                'area' => $pedido->usuario->area->nombre ?? '',
+                'programa' => $pedido->ficha->programa->nombre ?? '',
+                'fecha' => $pedido->created_at->format('d/m/Y'),
+            ];
+        });
+
         $this->area = $area;
         $this->instructores = $instructores;
     }
 
     public function build()
-    {
-        return $this->subject('📦 Pedidos agrupados de la Área: ' . $this->area)
-            ->markdown('emails.pedidos.agrupados')
-            ->with([
-                'pedidos' => $this->pedidos,
-                'area' => $this->area,
-                'instructores' => $this->instructores,
-            ]);
-    }
+{
+    return $this->subject('📦 Consolidado de pedidos - ' . $this->area)
+        ->view('emails.pedido_admin')
+        ->with([
+            'pedidos' => $this->pedidos,
+            'area' => $this->area,
+            'instructores' => $this->instructores,
+        ]);
 }
-    
+}

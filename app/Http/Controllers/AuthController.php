@@ -27,7 +27,7 @@ class AuthController extends Controller
 
     if (Auth::attempt($credentials, $request->filled('remember'))) {
         $request->session()->regenerate();
-        
+
 
         // Obtenemos el rol del usuario autenticado
         $user = Auth::user();
@@ -63,4 +63,13 @@ class AuthController extends Controller
 
         return redirect()->route('login');
     }
+
+    protected function authenticated(Request $request, $user)
+{
+    if ($request->has('redirect')) {
+        return redirect($request->redirect);
+    }
+
+    return redirect('/dashboard');
+}
 }
