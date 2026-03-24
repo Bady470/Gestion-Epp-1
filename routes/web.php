@@ -104,8 +104,7 @@ Route::middleware('auth')->group(function () {
 
     // Lógica del instructor
     // Rutas de pedidos
-    Route::get('/pedidos', [PedidoController::class, 'index'])->name('pedidos.index');
-    Route::get('/pedidos/{id}', [PedidoController::class, 'show'])->name('pedidos.show');
+   
 
     // Rutas del carrito de compras
     Route::post('/carrito/agregar', [CarritoController::class, 'agregar'])->name('carrito.agregar');
@@ -115,9 +114,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/carrito/confirmar', [CarritoController::class, 'confirmar'])->name('carrito.confirmar');
 
     // Rutas de solicitudes
-    Route::get('/solicitudes', [SolicitudController::class, 'index'])->name('solicitudes.index');
-    Route::get('/solicitudes/{id}', [SolicitudController::class, 'show'])->name('solicitudes.show');
-    Route::post('/solicitudes/{id}/enviar', [SolicitudController::class, 'enviar'])->name('solicitudes.enviar');
 
     // Rutas de importación de archivos Excel
     Route::post('/users/import', [UserImportController::class, 'import']);
