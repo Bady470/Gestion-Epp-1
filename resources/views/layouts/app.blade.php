@@ -188,7 +188,7 @@
 
                 <!-- LOGO A LA IZQUIERDA -->
                 <a class="navbar-brand" href="{{ route('dashboard.admin') }}">
-                    <img src="{{ asset('img/logoblanco.png') }}" alt="SENA">
+                    <img src="{{ asset('img/logoblanco.png') }}" alt="SENA" loading="lazy">
                     SENA EPP
                 </a>
 

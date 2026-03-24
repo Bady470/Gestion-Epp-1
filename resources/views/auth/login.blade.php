@@ -313,7 +313,7 @@
         <!-- Illustration -->
         <section class="illustration-side" aria-hidden="true">
             <div class="logo-container">
-                <img src="{{ asset('img/logoblanco.png') }}" alt="SENA Logo" class="logo-img">
+                <img src="{{ asset('img/logoblanco.png') }}" alt="SENA Logo" class="logo-img" loading="lazy">
             </div>
             <div class="logo-text">SENA EPP</div>
             <div class="logo-sub">Sistema de Gestión de Equipos de Protección Personal</div>

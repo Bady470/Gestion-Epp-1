@@ -36,7 +36,7 @@
                     @foreach ($pedido->elementos as $epp)
                         <tr>
                             <td class="text-center">
-                                <img src="{{ asset('img/' . $epp->img_url) }}" width="80" class="rounded border">
+                                <img src="{{ asset('img/' . $epp->img_url) }}" width="80" class="rounded border" loading="lazy">
                             </td>
                             <td>
                                 <div class="fw-bold">{{ $epp->nombre }}</div>

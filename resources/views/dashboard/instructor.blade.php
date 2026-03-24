@@ -660,7 +660,7 @@
             <div class="producto-card" id="card-{{ $epp->id }}">
                 <!-- Imagen del producto -->
                 <div class="producto-img">
-                    <img src="{{ asset($epp->img_url) }}" alt="{{ $epp->nombre }}">
+                    <img src="{{ asset($epp->img_url) }}" alt="{{ $epp->nombre }}" loading="lazy">
 
                     <!-- Badge de talla si existe -->
                     @if ($epp->talla)

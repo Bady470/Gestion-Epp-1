@@ -319,7 +319,7 @@
 
                             <td data-label="Imagen">
                                 @if($elemento->img_url)
-                                    <img src="{{ $elemento->img_url }}" alt="{{ $elemento->nombre }}" width="50" height="50" class="rounded shadow-sm product-img-mobile" style="object-fit: cover;" onerror="this.src='https://via.placeholder.com/50?text=EPP'">
+                                    <img src="{{ $elemento->img_url }}" alt="{{ $elemento->nombre }}" width="50" height="50" class="rounded shadow-sm product-img-mobile" style="object-fit: cover;" onerror="this.src='https://via.placeholder.com/50?text=EPP'" loading="lazy">
                                 @else
                                     <div class="bg-light rounded d-flex align-items-center justify-content-center product-img-mobile" style="width: 50px; height: 50px;">
                                         <i class="bi bi-image text-muted"></i>

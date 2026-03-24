@@ -213,7 +213,7 @@
             <div class="container">
                 <!-- Logo + Título -->
                 <a class="navbar-brand" href="{{ route('dashboard.lider') }}">
-                    <img src="{{ asset('img/logoblanco.png') }}" alt="SENA">
+                    <img src="{{ asset('img/logoblanco.png') }}" alt="SENA" loading="lazy">
                     SENA EPP
                 </a>
 

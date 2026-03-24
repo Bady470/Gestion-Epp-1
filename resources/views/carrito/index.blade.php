@@ -38,7 +38,7 @@
                             <tr>
                                 <td class="text-center">
                                     @if(isset($item['img_url']) && $item['img_url'])
-                                        <img src="{{ asset($item['img_url']) }}" width="70" height="70" class="rounded object-fit-cover shadow-sm border">
+                                        <img src="{{ asset($item['img_url']) }}" width="70" height="70" class="rounded object-fit-cover shadow-sm border" loading="lazy">
                                     @else
                                         <div class="bg-light rounded border d-flex align-items-center justify-content-center mx-auto" style="width: 70px; height: 70px;">
                                             <i class="bi bi-image text-muted fs-3"></i>
@@ -89,7 +89,7 @@
                         <div class="d-flex gap-3">
                             <div class="flex-shrink-0">
                                 @if(isset($item['img_url']) && $item['img_url'])
-                                    <img src="{{ asset($item['img_url']) }}" width="80" height="80" class="rounded object-fit-cover border shadow-sm">
+                                    <img src="{{ asset($item['img_url']) }}" width="80" height="80" class="rounded object-fit-cover border shadow-sm" loading="lazy">
                                 @else
                                     <div class="bg-light rounded border d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
                                         <i class="bi bi-image text-muted fs-2"></i>

@@ -236,7 +236,7 @@
                         </div>
 
                         <div class="preview-container mb-3">
-                            <img id="preview" src="" style="display:none;" alt="Vista previa">
+                            <img id="preview" src="" style="display:none;" alt="Vista previa" loading="lazy">
                             <div id="preview-placeholder" class="text-muted">
                                 <i class="bi bi-image display-4 d-block mb-2"></i>
                                 <span>Vista previa de imagen</span>

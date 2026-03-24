@@ -272,14 +272,14 @@
                             <div class="image-box">
                                 <span class="image-box-label">Imagen Actual</span>
                                 @if($elementos_pp->img_url)
-                                    <img src="{{ $elementos_pp->img_url }}" alt="Actual">
+                                    <img src="{{ $elementos_pp->img_url }}" alt="Actual" loading="lazy">
                                 @else
                                     <div class="py-4 text-muted small italic">Sin imagen previa</div>
                                 @endif
                             </div>
                             <div class="image-box new-preview" id="preview-box" style="display: none;">
                                 <span class="image-box-label">Nueva Imagen</span>
-                                <img id="preview" src="" alt="Nueva">
+                                <img id="preview" src="" alt="Nueva" loading="lazy">
                             </div>
                         </div>
                     </div>
