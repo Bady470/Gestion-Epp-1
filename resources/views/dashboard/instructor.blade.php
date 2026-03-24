@@ -497,6 +497,47 @@
         }
     }
 
+    /* Botón flotante del carrito */
+    .btn-carrito-flotante {
+        position: fixed;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 1000;
+        background: linear-gradient(135deg, var(--sena-green), #2d8a00);
+        color: white;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-carrito-flotante:hover {
+        transform: translateY(-50%) scale(1.1);
+        box-shadow: 0 6px 20px rgba(57, 169, 0, 0.4);
+        color: white;
+    }
+
+    .btn-carrito-flotante i {
+        font-size: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .btn-carrito-flotante {
+            width: 50px;
+            height: 50px;
+            right: 10px;
+        }
+        .btn-carrito-flotante i {
+            font-size: 1.2rem;
+        }
+    }
+
     /* Animaciones */
     @keyframes slideIn {
         from {
@@ -571,6 +612,11 @@
             <i class="bi bi-cart-check"></i> Ver Carrito
         </a>
     </div>
+
+    <!-- Botón flotante del carrito -->
+    <a href="{{ route('carrito.index') }}" class="btn-carrito-flotante" title="Ver Carrito">
+        <i class="bi bi-cart-check"></i>
+    </a>
     @endif
 
     <!-- Productos -->
