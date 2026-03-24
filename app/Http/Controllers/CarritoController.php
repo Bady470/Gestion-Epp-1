@@ -18,7 +18,7 @@ class CarritoController extends Controller
     }
 
     // ✅ AGREGAR UN PRODUCTO AL CARRITO (AJAX - SIN REDIRECCIÓN)
-    public function agregar(Request $request)
+     public function agregar(Request $request)
     {
         try {
             // Log para debugging
@@ -49,8 +49,10 @@ class CarritoController extends Controller
             // 👈 CAMBIO: Usar findOrFail sin validación de tabla
             $producto = ElementoPP::findOrFail($request->id);
             $cantidad = (int) $request->cantidad;
-            $talla = $request->input('talla', null); // 👈 OBTENER TALLA
-            $ficha_id = $request->input('ficha_id', null); // 👈 NUEVO: OBTENER FICHA
+
+            // 👈 OBTENER TALLA COMO STRING LIMPIO
+            $talla = $request->has('talla') ? trim((string)$request->talla) : null;
+            $ficha_id = $request->input('ficha_id', null);
 
             // Validar cantidad
             if ($cantidad <= 0 || $cantidad > $producto->cantidad) {
@@ -62,8 +64,9 @@ class CarritoController extends Controller
 
             $carrito = session()->get('carrito', []);
 
-            // 👈 NUEVO: Crear una clave única que incluya el ID del producto, ficha y talla
-            $clave_carrito = $producto->id . '_' . $ficha_id . '_' . ($talla ?? 'sin-talla');
+            // 👈 CLAVE ÚNICA: Usamos MD5 para que cualquier texto de talla sea una clave válida
+            $talla_key = $talla ? strtolower(str_replace(' ', '-', $talla)) : 'sin-talla';
+            $clave_carrito = $producto->id . '_' . $ficha_id . '_' . $talla_key;
 
             // Si el producto con la misma talla y ficha ya está en el carrito, sumar cantidad
             if (isset($carrito[$clave_carrito])) {

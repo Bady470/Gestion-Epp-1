@@ -527,6 +527,38 @@
         font-size: 1.5rem;
     }
 
+    /* Badge para el contador del carrito */
+    .cart-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: #ff4444;
+        color: white;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: bold;
+        border: 2px solid white;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    /* Estilo para la imagen que vuela */
+    .flying-img {
+        position: fixed;
+        z-index: 9999;
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 50%;
+        pointer-events: none;
+        transition: all 0.8s cubic-bezier(0.42, 0, 0.58, 1);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
     @media (max-width: 768px) {
         .btn-carrito-flotante {
             width: 50px;
@@ -614,8 +646,9 @@
     </div>
 
     <!-- Botón flotante del carrito -->
-    <a href="{{ route('carrito.index') }}" class="btn-carrito-flotante" title="Ver Carrito">
+    <a href="{{ route('carrito.index') }}" class="btn-carrito-flotante" id="cart-floating-btn" title="Ver Carrito">
         <i class="bi bi-cart-check"></i>
+        <span class="cart-badge" id="cart-count">0</span>
     </a>
     @endif
 
@@ -754,8 +787,66 @@
 
 <!-- SCRIPT MEJORADO CON SELECTOR DE FICHA Y TALLA EDITABLE -->
 <script>
-// 👈 NUEVA VARIABLE GLOBAL: Ficha seleccionada
+// 👈 VARIABLES GLOBALES
 let fichaSeleccionada = null;
+let cartCount = 0;
+
+// Función para animar el vuelo de la imagen
+function animateFlyToCart(productId) {
+    const productCard = document.getElementById(`card-${productId}`);
+    const productImg = productCard.querySelector('.producto-img img');
+    const cartBtn = document.getElementById('cart-floating-btn');
+
+    if (!productImg || !cartBtn) return;
+
+    // Crear clon de la imagen
+    const flyingImg = document.createElement('img');
+    flyingImg.src = productImg.src;
+    flyingImg.classList.add('flying-img');
+
+    // Obtener posiciones
+    const imgRect = productImg.getBoundingClientRect();
+    const cartRect = cartBtn.getBoundingClientRect();
+
+    // Posición inicial
+    flyingImg.style.left = `${imgRect.left}px`;
+    flyingImg.style.top = `${imgRect.top}px`;
+    flyingImg.style.width = `${imgRect.width}px`;
+    flyingImg.style.height = `${imgRect.height}px`;
+
+    document.body.appendChild(flyingImg);
+
+    // Forzar reflow para que la transición funcione
+    flyingImg.offsetWidth;
+
+    // Posición final (vuelo)
+    flyingImg.style.left = `${cartRect.left + cartRect.width / 2}px`;
+    flyingImg.style.top = `${cartRect.top + cartRect.height / 2}px`;
+    flyingImg.style.width = '20px';
+    flyingImg.style.height = '20px';
+    flyingImg.style.opacity = '0.5';
+    flyingImg.style.transform = 'scale(0.1)';
+
+    // Limpiar después de la animación
+    setTimeout(() => {
+        flyingImg.remove();
+        // Efecto de rebote en el carrito
+        cartBtn.style.transform = 'translateY(-50%) scale(1.2)';
+        setTimeout(() => {
+            cartBtn.style.transform = 'translateY(-50%) scale(1)';
+        }, 200);
+    }, 800);
+}
+
+// Función para actualizar el contador visual
+function updateCartCounter(count) {
+    cartCount += count;
+    const counterElement = document.getElementById('cart-count');
+    if (counterElement) {
+        counterElement.textContent = cartCount;
+        counterElement.style.display = cartCount > 0 ? 'flex' : 'none';
+    }
+}
 
 // 👈 NUEVO: Escuchar cambios en el selector de ficha
 document.getElementById('ficha-selector').addEventListener('change', function() {
@@ -891,11 +982,13 @@ function agregarAlCarritoAjax(id, nombre) {
     })
 })
     .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            mostrarToast(`✅ ${nombre} (${talla}) agregado al carrito`);
-            document.getElementById(`qty-${id}`).value = 0;
-        } else {
+	    .then(data => {
+	        if (data.success) {
+	            mostrarToast(`✅ ${nombre} (${talla}) agregado al carrito`);
+                animateFlyToCart(id);
+                updateCartCounter(cantidad);
+	            document.getElementById(`qty-${id}`).value = 0;
+	        } else {
             mostrarToast('❌ Error: ' + (data.message || 'No se pudo agregar'));
         }
     })
@@ -967,15 +1060,23 @@ function agregarTodoAlCarrito() {
         })
     })
     .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            mostrarToast(`✅ ${items.length} producto(s) agregado(s) al carrito`);
+	    .then(data => {
+	        if (data.success) {
+	            mostrarToast(`✅ ${items.length} producto(s) agregado(s) al carrito`);
 
-            // Resetear todas las cantidades
-            document.querySelectorAll('[id^="qty-"]').forEach(input => {
-                input.value = 0;
-            });
-        } else {
+                // Animar y actualizar contador para cada item
+                let totalAdded = 0;
+                items.forEach(item => {
+                    animateFlyToCart(item.id);
+                    totalAdded += item.cantidad;
+                });
+                updateCartCounter(totalAdded);
+
+	            // Resetear todas las cantidades
+	            document.querySelectorAll('[id^="qty-"]').forEach(input => {
+	                input.value = 0;
+	            });
+	        } else {
             mostrarToast('❌ Error: ' + (data.message || 'No se pudieron agregar'));
         }
     })

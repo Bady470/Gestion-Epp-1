@@ -16,26 +16,8 @@ return new class extends Migration
             $table->unsignedBigInteger('pedidos_id');
             $table->unsignedBigInteger('elementos_pp_id');
             $table->integer('cantidad')->default(1); // 👈 cantidad solicitada por el instructor
-            $table->enum('talla', [
-                'XS',
-                'S',
-                'M',
-                'L',
-                'XL',
-                'XXL',
-                '34',
-                '35',
-                '36',
-                '37',
-                '38',
-                '39',
-                '40',
-                '41',
-                '42',
-                '43',
-                '44',
-                'UNICA'
-            ])->nullable(); // 👈 REMOVIDO: ->after('cantidad')
+            $table->string('talla')->nullable();
+             // 👈 REMOVIDO: ->after('cantidad')
 
             $table->foreign('pedidos_id')
                 ->references('id')
