@@ -12,27 +12,55 @@ class AuthController extends Controller
      */
     public function showLogin()
     {
+        // Si el usuario ya está autenticado, redirigirlo directamente a su dashboard
+        if (Auth::check()) {
+            return $this->redirectByUserRole(Auth::user());
+        }
+
         return view('auth.login');
     }
 
     /**
      * Procesar el inicio de sesión.
+     * Implementa la funcionalidad de "Recordarme" y redirección por roles.
      */
     public function login(Request $request)
-{
-    $credentials = $request->validate([
-        'email' => ['required', 'email'],
-        'password' => ['required'],
-    ]);
+    {
+        // 1. Validación de credenciales
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ], [
+            'email.required' => 'El correo electrónico es obligatorio.',
+            'email.email' => 'Por favor, ingresa un correo electrónico válido.',
+            'password.required' => 'La contraseña es obligatoria.',
+        ]);
 
-    if (Auth::attempt($credentials, $request->filled('remember'))) {
-        $request->session()->regenerate();
+        // 2. Intentar la autenticación con la opción "Recordarme"
+        // El método filled('remember') devuelve true si el checkbox fue marcado.
+        $remember = $request->filled('remember');
 
+        if (Auth::attempt($credentials, $remember)) {
+            // 3. Éxito: Regenerar la sesión para seguridad
+            $request->session()->regenerate();
 
-        // Obtenemos el rol del usuario autenticado
-        $user = Auth::user();
+            // 4. Obtener el usuario y redirigir según su rol
+            $user = Auth::user();
+            return $this->redirectByUserRole($user);
+        }
 
-        // Redirigir según su rol
+        // 5. Error: Redirigir de vuelta con mensaje de error
+        return back()->withErrors([
+            'email' => 'Las credenciales no coinciden con nuestros registros.',
+        ])->onlyInput('email');
+    }
+
+    /**
+     * Lógica centralizada para redirigir según el rol del usuario.
+     */
+    private function redirectByUserRole($user)
+    {
+        // Redirigir según su roles_id (1: Admin, 2: Instructor, 3: Líder)
         switch ($user->roles_id) {
             case '1':
                 return redirect()->route('dashboard.admin');
@@ -41,35 +69,23 @@ class AuthController extends Controller
             case '3':
                 return redirect()->route('dashboard.lider');
             default:
+                // Si el rol no es reconocido, cerrar sesión por seguridad
                 Auth::logout();
-                return redirect('/login')->withErrors(['email' => 'Rol no autorizado.']);
+                return redirect()->route('login')->withErrors(['email' => 'Rol no autorizado en el sistema.']);
         }
     }
 
-    return back()->withErrors([
-        'email' => 'Las credenciales no coinciden con nuestros registros.',
-    ])->onlyInput('email');
-}
-
-
     /**
-     * Cerrar sesión.
+     * Cerrar sesión del usuario.
      */
     public function logout(Request $request)
     {
         Auth::logout();
+
+        // Invalida la sesión del usuario y regenera el token CSRF
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login');
+        return redirect()->route('login')->with('status', 'Has cerrado sesión correctamente.');
     }
-
-    protected function authenticated(Request $request, $user)
-{
-    if ($request->has('redirect')) {
-        return redirect($request->redirect);
-    }
-
-    return redirect('/dashboard');
-}
 }
