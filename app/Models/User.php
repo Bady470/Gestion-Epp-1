@@ -12,6 +12,9 @@ class User extends Authenticatable
 
     protected $table = 'users';
 
+    /**
+     * Los atributos que se pueden asignar masivamente.
+     */
     protected $fillable = [
         'nombre_completo',
         'email',
@@ -20,11 +23,21 @@ class User extends Authenticatable
         'areas_id',
     ];
 
+    /**
+     * Los atributos que deben ocultarse para la serialización.
+     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
+    /**
+     * IMPORTANTE: Indica a Laravel el nombre de la columna para el "Remember Me".
+     * Esto asegura que el token se guarde correctamente en la base de datos.
+     */
+    protected $rememberTokenName = 'remember_token';
+
+    // Relaciones
     public function rol()
     {
         return $this->belongsTo(Role::class, 'roles_id');
@@ -40,20 +53,8 @@ class User extends Authenticatable
         return $this->hasMany(Pedido::class, 'users_id');
     }
 
-
-
-
     /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Los atributos que deben ser convertidos.
      */
     protected function casts(): array
     {
