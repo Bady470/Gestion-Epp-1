@@ -190,6 +190,7 @@
         }
     }
     </style>
+    @livewireStyles
 </head>
 
 <body>
@@ -254,6 +255,7 @@
             form.submit();
         }
     </script>
+    @livewireScripts
 </body>
 
 </html>
