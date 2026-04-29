@@ -16,7 +16,6 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\FichaController;
 use App\Http\Controllers\InstructoresController;
-use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\ProgramaController;
 use App\Http\Controllers\UserController;
 
@@ -104,7 +103,7 @@ Route::middleware('auth')->group(function () {
 
     // Lógica del instructor
     // Rutas de pedidos
-   
+
 
     // Rutas del carrito de compras
     Route::post('/carrito/agregar', [CarritoController::class, 'agregar'])->name('carrito.agregar');
