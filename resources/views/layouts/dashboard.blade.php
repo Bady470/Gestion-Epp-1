@@ -371,6 +371,7 @@
             animation: badgeAppear 0.4s ease;
         }
     </style>
+    @livewireStyles
 </head>
 
 <body>
@@ -480,6 +481,7 @@
             setInterval(actualizarNotificaciones, 30000);
         });
     </script>
+    @livewireScripts
 </body>
 
 </html>
